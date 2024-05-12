@@ -4,7 +4,7 @@ import TileButton from "./components/TileButton";
 
 function App() {
   /* VARIABLES */
-  const [nTiles] = useState(25); //Can only be a true square root number and equal or greater than 25  i.e: 25(5),36(6),49(7),64(8),9(81) etc.
+  const [nTiles] = useState(36); //Can only be a true square root number and equal or greater than 25  i.e: 25(5),36(6),49(7),64(8),9(81) etc.
   const [bombFound, setBombFound] = useState<boolean>(false);
   const level1 = {
     nTiles: nTiles,
@@ -100,7 +100,7 @@ function App() {
       );
       // setLastRow(lastRowTemp);
       // setLastCol(lastColTemp);
-      setBorderTiles([...lastColTemp,...lastRowTemp]);
+      setBorderTiles([...lastColTemp, ...lastRowTemp]);
       console.log(borderTiles);
     } else {
       console.log({
