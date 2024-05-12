@@ -8,7 +8,7 @@ type TTileButton = {
   value: number | null;
   index: number;
   setBombFound: (arg: boolean) => void;
-  setScore: (value: number) => void;
+  setScore: React.Dispatch<React.SetStateAction<number>>;
 };
 
 export default function TileButton({
@@ -32,7 +32,7 @@ export default function TileButton({
 
   return (
     <button
-    disabled={cardFlipped}
+      disabled={cardFlipped}
       className={`
        ${
          hintTiles

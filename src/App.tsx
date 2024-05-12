@@ -72,7 +72,6 @@ function App() {
       }
     })
   );
- 
 
   const flipCard = (index: number) => {
     setTilesData((prevTilesData) =>
@@ -130,7 +129,9 @@ function App() {
         </div>
       )}
       <div className="w-fit h-fit flex flex-col justify-center items-center ">
-        <div className="text-6xl ">Score :{score}</div>
+        <div className="text-6xl ">
+          Score: <span className="font-bold">{score}</span>
+        </div>
         <TileGrids gridCols={SQRT_N_Tiles.toString()}>
           {tilesData.map((tile, index) => (
             <TileButton
