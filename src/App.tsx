@@ -4,9 +4,8 @@ import TileButton from "./components/TileButton";
 
 function App() {
   /* VARIABLES */
-
   const [nTiles] = useState(25); //Can only be a true square root number and equal or greater than 25  i.e: 25(5),36(6),49(7),64(8),9(81) etc.
-
+  const [bombFound, setBombFound] = useState<boolean>(false);
   const level1 = {
     nTiles: nTiles,
     numberOfBombs: 5,
@@ -74,8 +73,9 @@ function App() {
     setFlippedTiles(flippedTiles + 1);
   };
 
-  const [lastCol, setLastCol] = useState<number[]>([]);
-  const [lastRow, setLastRow] = useState<number[]>([]);
+  // const [lastCol, setLastCol] = useState<number[]>([]);
+  // const [lastRow, setLastRow] = useState<number[]>([]);
+  const [borderTiles, setBorderTiles] = useState<number[]>([]);
 
   useEffect(() => {
     // console.log(tilesData);
@@ -98,9 +98,10 @@ function App() {
         },
         (_, index) => nTiles - SQRT_N_Tiles + (index + 1)
       );
-      console.log(lastColTemp, lastRowTemp);
-      setLastRow(lastRowTemp);
-      setLastCol(lastColTemp);
+      // setLastRow(lastRowTemp);
+      // setLastCol(lastColTemp);
+      setBorderTiles([...lastColTemp,...lastRowTemp]);
+      console.log(borderTiles);
     } else {
       console.log({
         message:
@@ -111,28 +112,32 @@ function App() {
 
   return (
     <div className="app flex flex-col justify-center items-center  h-screen w-screen bg-blue-100">
-      {flippedTiles === nTiles && (
+      {bombFound && (
         <div className="absolute w-screen h-screen z-50 bg-black/30 flex flex-col justify-center items-center ">
           <div className="animate-slide-in-top  duration-[1500ms]   bg-white p-10 rounded-lg border-4 border-blue-500">
             <span className="text-6xl font-bold">Game Over</span>
           </div>
         </div>
       )}
-      <div className="text-6xl ">Tiles Flipped :{flippedTiles}</div>
-      <TileGrids gridCols={SQRT_N_Tiles.toString()}>
-        {tilesData.map((tile, index) => (
-          <TileButton
-            key={index}
-            index={index + 1}
-            value={tile.value}
-            flipCard={() => !tile.isFlipped && flipCard(index)}
-            cardFlipped={tile.isFlipped}
-            lastCol={lastCol}
-            lastRow={lastRow}
-            lastTile={nTiles}
-          />
-        ))}
-      </TileGrids>
+      <div className="w-fit h-fit flex flex-col justify-center items-center ">
+        <div className="text-6xl ">Tiles Flipped :{flippedTiles}</div>
+        <TileGrids gridCols={SQRT_N_Tiles.toString()}>
+          {tilesData.map((tile, index) => (
+            <TileButton
+              key={index}
+              setBombFound={setBombFound}
+              index={index + 1}
+              value={tile.value}
+              flipCard={() => !tile.isFlipped && flipCard(index)}
+              cardFlipped={tile.isFlipped}
+              // lastCol={lastCol}
+              // lastRow={lastRow}
+              borderTiles={borderTiles}
+              lastTile={nTiles}
+            />
+          ))}
+        </TileGrids>
+      </div>
     </div>
   );
 }
