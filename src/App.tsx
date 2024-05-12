@@ -5,19 +5,21 @@ import TileButton from "./components/TileButton";
 function App() {
   /* VARIABLES */
 
+  const [nTiles] = useState(25); //Can only be a true square root number and equal or greater than 25  i.e: 25(5),36(6),49(7),64(8),9(81) etc.
+
   const level1 = {
-    numberOfTiles: 25,
+    nTiles: nTiles,
     numberOfBombs: 5,
     numberOfBonuses: 5,
   };
+
+  const SQRT_N_Tiles: number = Math.sqrt(nTiles);
 
   /* VARIABLES */
   /* STATES */
   const [bombsAdded, setBombsAdded] = useState(0);
   const [bonusesAdded, setBonusesAdded] = useState(0);
   const [flippedTiles, setFlippedTiles] = useState(0);
-  
-  // const [updatedTilesData,setUpdatedTilesData] = useState({...tilesData});
 
   /* STATES */
 
@@ -57,7 +59,7 @@ function App() {
   };
 
   const [tilesData, setTilesData] = useState(
-    Array.from({ length: level1.numberOfTiles }, () => ({
+    Array.from({ length: nTiles }, () => ({
       value: tileRNG(),
       isFlipped: false,
     }))
@@ -68,16 +70,48 @@ function App() {
         i === index ? { ...tile, isFlipped: true } : tile
       )
     );
-    // setTilesData({...updatedTilesData});
 
     setFlippedTiles(flippedTiles + 1);
   };
+
+  const [lastCol, setLastCol] = useState<number[]>([]);
+  const [lastRow, setLastRow] = useState<number[]>([]);
+
   useEffect(() => {
-    console.log(tilesData);
-  });
+    // console.log(tilesData);
+    let lastColTemp: number[] = [];
+    let lastRowTemp: number[] = [];
+
+    if (nTiles % SQRT_N_Tiles === 0) {
+      // const lastCol: number = SQRT_N_Tiles;
+
+      lastColTemp = Array.from(
+        {
+          length: SQRT_N_Tiles - 1,
+        },
+        (_, index) => SQRT_N_Tiles * (index + 1)
+      );
+
+      lastRowTemp = Array.from(
+        {
+          length: SQRT_N_Tiles,
+        },
+        (_, index) => nTiles - SQRT_N_Tiles + (index + 1)
+      );
+      console.log(lastColTemp, lastRowTemp);
+      setLastRow(lastRowTemp);
+      setLastCol(lastColTemp);
+    } else {
+      console.log({
+        message:
+          "nTiles or Number of Tiles should be a true square root\n and equal or greater than 25 \ni.e: 25(5),36(6),49(7),64(8),9(81).",
+      });
+    }
+  }, [nTiles, SQRT_N_Tiles, tilesData]);
+
   return (
     <div className="app flex flex-col justify-center items-center  h-screen w-screen bg-blue-100">
-      {flippedTiles === level1.numberOfTiles && (
+      {flippedTiles === nTiles && (
         <div className="absolute w-screen h-screen z-50 bg-black/30 flex flex-col justify-center items-center ">
           <div className="animate-slide-in-top  duration-[1500ms]   bg-white p-10 rounded-lg border-4 border-blue-500">
             <span className="text-6xl font-bold">Game Over</span>
@@ -85,7 +119,7 @@ function App() {
         </div>
       )}
       <div className="text-6xl ">Tiles Flipped :{flippedTiles}</div>
-      <TileGrids>
+      <TileGrids gridCols={SQRT_N_Tiles.toString()}>
         {tilesData.map((tile, index) => (
           <TileButton
             key={index}
@@ -93,6 +127,9 @@ function App() {
             value={tile.value}
             flipCard={() => !tile.isFlipped && flipCard(index)}
             cardFlipped={tile.isFlipped}
+            lastCol={lastCol}
+            lastRow={lastRow}
+            lastTile={nTiles}
           />
         ))}
       </TileGrids>
