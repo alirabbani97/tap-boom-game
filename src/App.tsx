@@ -2,23 +2,29 @@ import { useEffect, useState } from "react";
 import TileGrids from "./components/TileGrids";
 import TileButton from "./components/TileButton";
 
+type TtileData = {
+  value: number | null;
+  isFlipped?: boolean | undefined;
+};
+
 function App() {
   /* VARIABLES */
-  const [nTiles] = useState(36); //Can only be a true square root number and equal or greater than 25  i.e: 25(5),36(6),49(7),64(8),9(81) etc.
-  const [bombFound, setBombFound] = useState<boolean>(false);
-  const level1 = {
-    nTiles: nTiles,
-    numberOfBombs: 5,
-    numberOfBonuses: 5,
-  };
-
+  const [nTiles] = useState(25); //Can only be a true square root number and equal or greater than 16 i.e:16(4),25(5),36(6),49(7),64(8),9(81) etc.
   const SQRT_N_Tiles: number = Math.sqrt(nTiles);
-
-  /* VARIABLES */
-  /* STATES */
+  const [score, setScore] = useState<number>(0);
+  const [bombFound, setBombFound] = useState<boolean>(false);
   const [bombsAdded, setBombsAdded] = useState(0);
   const [bonusesAdded, setBonusesAdded] = useState(0);
   const [flippedTiles, setFlippedTiles] = useState(0);
+  const [borderTiles, setBorderTiles] = useState<number[]>([]);
+  const level1 = {
+    nTiles: nTiles,
+    numberOfBombs: SQRT_N_Tiles,
+    numberOfBonuses: 5,
+  };
+
+  /* VARIABLES */
+  /* STATES */
 
   /* STATES */
 
@@ -57,12 +63,17 @@ function App() {
     return 1;
   };
 
-  const [tilesData, setTilesData] = useState(
-    Array.from({ length: nTiles }, () => ({
-      value: tileRNG(),
-      isFlipped: false,
-    }))
+  const [tilesData, setTilesData] = useState<TtileData[]>(
+    Array.from({ length: nTiles }, (_, index) => {
+      if (borderTiles.includes(index + 1)) {
+        return { value: null };
+      } else {
+        return { value: tileRNG(), isFlipped: false };
+      }
+    })
   );
+ 
+
   const flipCard = (index: number) => {
     setTilesData((prevTilesData) =>
       prevTilesData.map((tile, i) =>
@@ -75,10 +86,9 @@ function App() {
 
   // const [lastCol, setLastCol] = useState<number[]>([]);
   // const [lastRow, setLastRow] = useState<number[]>([]);
-  const [borderTiles, setBorderTiles] = useState<number[]>([]);
 
   useEffect(() => {
-    // console.log(tilesData);
+    console.log(tilesData);
     let lastColTemp: number[] = [];
     let lastRowTemp: number[] = [];
 
@@ -120,20 +130,21 @@ function App() {
         </div>
       )}
       <div className="w-fit h-fit flex flex-col justify-center items-center ">
-        <div className="text-6xl ">Tiles Flipped :{flippedTiles}</div>
+        <div className="text-6xl ">Score :{score}</div>
         <TileGrids gridCols={SQRT_N_Tiles.toString()}>
           {tilesData.map((tile, index) => (
             <TileButton
+              // lastCol={lastCol}
+              // lastRow={lastRow}
               key={index}
               setBombFound={setBombFound}
               index={index + 1}
               value={tile.value}
               flipCard={() => !tile.isFlipped && flipCard(index)}
               cardFlipped={tile.isFlipped}
-              // lastCol={lastCol}
-              // lastRow={lastRow}
               borderTiles={borderTiles}
               lastTile={nTiles}
+              setScore={setScore}
             />
           ))}
         </TileGrids>

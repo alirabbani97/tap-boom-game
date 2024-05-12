@@ -4,10 +4,11 @@ type TTileButton = {
   borderTiles: number[];
   lastTile: number;
   flipCard: () => void;
-  cardFlipped: boolean;
-  value: number;
+  cardFlipped: boolean | undefined;
+  value: number | null;
   index: number;
   setBombFound: (arg: boolean) => void;
+  setScore: (value: number) => void;
 };
 
 export default function TileButton({
@@ -20,6 +21,7 @@ export default function TileButton({
   cardFlipped,
   setBombFound,
   borderTiles,
+  setScore,
 }: TTileButton) {
   // const lastTileOfRows = index < 21 && index % 5;
   // const lastRowIndices = [21, 22, 23, 24];
@@ -29,7 +31,8 @@ export default function TileButton({
     " bg-lime-200 flex items-center justify-center text-6xl font-bold rounded-md w-32 h-32 select-none";
 
   return (
-    <div
+    <button
+    disabled={cardFlipped}
       className={`
        ${
          hintTiles
@@ -40,15 +43,23 @@ export default function TileButton({
        }`}
       onClick={() => {
         if (hintTiles !== true) {
-          flipCard();
           if (value === 0) {
             setBombFound(true);
           }
+          flipCard();
+          if (value !== 0 && value !== null) {
+            setScore((prev: number) => {
+              if (prev === 0) {
+                return prev + value;
+              } else {
+                return prev * value;
+              }
+            });
+          }
         }
-        
       }}
     >
       {hintTiles ? "5/5" : cardFlipped ? `${value}` : "?"}
-    </div>
+    </button>
   );
 }
