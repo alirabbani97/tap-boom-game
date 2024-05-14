@@ -4,13 +4,13 @@ import TileButton from "./components/TileButton";
 import HintTiles from "./components/HintTIles";
 
 type TtileData = {
-  value: number | null;
+  value: number;
   isFlipped?: boolean | undefined;
 };
 
 function App() {
   /* VARIABLES */
-  const [nTiles] = useState(16); //Can only be a true square root number and equal or greater than 16 i.e:16(4),25(5),36(6),49(7),64(8),9(81) etc.
+  const [nTiles] = useState(25); //Can only be a true square root number and equal or greater than 16 i.e:16(4),25(5),36(6),49(7),64(8),9(81) etc.
   const SQRT_N_Tiles: number = Math.sqrt(nTiles);
   const [score, setScore] = useState<number>(0);
   const [bombFound, setBombFound] = useState<boolean>(false);
@@ -77,16 +77,20 @@ function App() {
     )
   );
 
-  const [sumsOfRow, setSumsOfRow] = useState<number[]>(
-    Array.from({ length: SQRT_N_Tiles }, () => {
-      for (let row of tilesData) {
-        for (let tile of row) {
-          console.log(tile);
-        }
+  const [sumsOfRow, setSumsOfRow] = useState<number[]>([]);
+
+  useEffect(() => {
+    let sumArr: number[] = [];
+    for (const row of tilesData) {
+      let sum = 0;
+      for (const tile of row) {
+        sum = sum + tile.value;
       }
-      return 1;
-    })
-  );
+      sumArr.push(sum);
+    }
+    setSumsOfRow(sumArr);
+    console.log(sumsOfRow);
+  }, [tilesData]);
 
   const flipCard = (rowIndex: number, colIndex: number) => {
     setTilesData((prevTilesData) =>
