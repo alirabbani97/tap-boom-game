@@ -21,6 +21,8 @@ function App() {
   const [tilesData, setTilesData] = useState<TtileData[][]>([]);
   const [sumsOfRow, setSumsOfRow] = useState<number[]>([]);
   const [sumsOfCol, setSumsOfCol] = useState<number[]>([]);
+  const [bombsInRow, setBombsInRow] = useState<number[]>([]);
+  const [bombsInCol, setBombsInCol] = useState<number[]>([]);
 
   const level1 = {
     nTiles: nTiles,
@@ -66,11 +68,9 @@ function App() {
     return 1;
   };
 
- 
-
   useEffect(() => {
-    setBombsAdded(0)
-    setBonusesAdded(0)
+    setBombsAdded(0);
+    setBonusesAdded(0);
     const newTilesData = Array.from({ length: SQRT_N_Tiles }, () =>
       Array.from({ length: SQRT_N_Tiles }, () => {
         return { value: tileRNG(), isFlipped: false };
@@ -95,7 +95,25 @@ function App() {
       return sum;
     });
     setSumsOfCol(newSumsOfCol);
-  }, [nTiles,SQRT_N_Tiles]);
+
+    const newBombsInRow = newTilesData.map((row) => {
+      let count = 0;
+      for (const tile of row) {
+        if (tile.value === 0) count = count + 1;
+      }
+      return count;
+    });
+    setBombsInRow(newBombsInRow);
+
+    const newBombsInCol = newTilesData[0].map((col, colIndex) => {
+      let count = 0;
+      for (let rowIndex = 0; rowIndex < SQRT_N_Tiles; rowIndex++) {
+        if (newTilesData[rowIndex][colIndex].value === 0) count = count + 1;
+      }
+      return count;
+    });
+    setBombsInCol(newBombsInCol);
+  }, [nTiles, SQRT_N_Tiles]);
 
   const flipCard = (rowIndex: number, colIndex: number) => {
     setTilesData((prevTilesData) =>
@@ -110,10 +128,9 @@ function App() {
   };
 
   /* CONSOLE LOGGING */
-  // useEffect(() => {
-  //   console.log(tilesData);
-  //   console.log(sumsOfRow);
-  // }, []);
+  useEffect(() => {
+    console.log(bombsInRow);
+  }, []);
   /* CONSOLE LOGGING */
 
   return (
@@ -164,7 +181,7 @@ function App() {
             <div
               className={`flex flex-col bg-orange-300 rounded-md p-5 pl-3 rounded-l-none rounded-b-none  gap-3 `}
             >
-              <HintTiles values={sumsOfRow} />
+              <HintTiles values={sumsOfRow} bombs={bombsInRow} />
 
               {/* {Array.from({ length: SQRT_N_Tiles }).map((tile, index) => (
                 <HintTiles key={index} values={sumsOfRow} />
@@ -175,7 +192,7 @@ function App() {
           <div
             className={`flex bg-orange-300 rounded-md p-5 pt-0 rounded-t-none  gap-3 `}
           >
-            <HintTiles values={sumsOfCol} />
+            <HintTiles values={sumsOfCol} bombs={bombsInCol} />
             {/* {Array.from({ length: SQRT_N_Tiles + 1 }).map((tile, index) => (
               <HintTiles
                
