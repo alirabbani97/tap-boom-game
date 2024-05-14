@@ -159,7 +159,7 @@ function App() {
                 {tilesData.map((row, rowIndex) =>
                   row.map((tile, colIndex) => (
                     <TileButton
-                    bombFound={bombFound}
+                      bombFound={bombFound}
                       key={`${rowIndex}-${colIndex}`}
                       setBombFound={setBombFound}
                       index={rowIndex + colIndex + 1}
