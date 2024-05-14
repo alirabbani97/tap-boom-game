@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import TileGrids from "./components/TileGrids";
 import TileButton from "./components/TileButton";
 import HintTiles from "./components/HintTIles";
+import LevelSlider from "./components/LevelSlider";
 
 type TtileData = {
   value: number;
@@ -10,15 +11,14 @@ type TtileData = {
 
 function App() {
   /* VARIABLES */
-  const [nTiles] = useState(25); //Can only be a true square root number and equal or greater than 16 i.e:16(4),25(5),36(6),49(7),64(8),9(81) etc.
+  const [nTiles, setNTiles] = useState(64); //Can only be a true square root number and equal or greater than 16 i.e:16(4),25(5),36(6),49(7),64(8),9(81) etc.
   const SQRT_N_Tiles: number = Math.sqrt(nTiles);
   const [score, setScore] = useState<number>(0);
   const [bombFound, setBombFound] = useState<boolean>(false);
   const [bombsAdded, setBombsAdded] = useState(0);
   const [bonusesAdded, setBonusesAdded] = useState(0);
   const [flippedTiles, setFlippedTiles] = useState(0);
-  // const [borderTiles, setBorderTiles] = useState<number[]>([]);
-  // const hintTilesCount = SQRT_N_Tiles * 2 - 1 + 2;
+
   const level1 = {
     nTiles: nTiles,
     numberOfBombs: SQRT_N_Tiles,
@@ -64,11 +64,6 @@ function App() {
     return 1;
   };
 
-  // const [tilesData, setTilesData] = useState<TtileData[]>(
-  //   Array.from({ length: nTiles }, () => {
-  //     return { value: tileRNG(), isFlipped: false };
-  //   })
-  // );
   const [tilesData, setTilesData] = useState<TtileData[][]>(
     Array.from({ length: SQRT_N_Tiles }, () =>
       Array.from({ length: SQRT_N_Tiles }, () => {
@@ -77,10 +72,8 @@ function App() {
     )
   );
 
-  const [sumsOfRow, setSumsOfRow] = useState<number[]>([]);
-
-  useEffect(() => {
-    let sumArr: number[] = [];
+  const [sumsOfRow] = useState<number[]>(() => {
+    const sumArr: number[] = [];
     for (const row of tilesData) {
       let sum = 0;
       for (const tile of row) {
@@ -88,9 +81,33 @@ function App() {
       }
       sumArr.push(sum);
     }
-    setSumsOfRow(sumArr);
-    console.log(sumsOfRow);
-  }, [tilesData]);
+    return sumArr;
+  });
+
+  const [sumsOfCol] = useState<number[]>(() => {
+    const sumArr: number[] = [];
+    for (const row of tilesData) {
+      let sum = 0;
+      for (const tile of row) {
+        sum = sum + tile.value;
+      }
+      sumArr.push(sum);
+    }
+    return sumArr;
+  });
+
+  // useEffect(() => {
+  //   const sumArr: number[] = [];
+  //   for (const row of tilesData) {
+  //     let sum = 0;
+  //     for (const tile of row) {
+  //       sum = sum + tile.value;
+  //     }
+  //     sumArr.push(sum);
+  //   }
+  //   setSumsOfRow(sumArr);
+  //   console.log(sumsOfRow);
+  // }, []);
 
   const flipCard = (rowIndex: number, colIndex: number) => {
     setTilesData((prevTilesData) =>
@@ -105,45 +122,11 @@ function App() {
   };
 
   /* CONSOLE LOGGING */
-  useEffect(() => {
-    console.log(tilesData);
-    console.log(sumsOfRow);
-  }, []);
-  /* CONSOLE LOGGING */
-  /* CALC THE HINT ROW AND COLS */
   // useEffect(() => {
   //   console.log(tilesData);
-  //   let lastColTemp: number[] = [];
-  //   let lastRowTemp: number[] = [];
-
-  //   if (nTiles % SQRT_N_Tiles === 0) {
-  //     // const lastCol: number = SQRT_N_Tiles;
-
-  //     lastColTemp = Array.from(
-  //       {
-  //         length: SQRT_N_Tiles - 1,
-  //       },
-  //       (_, index) => SQRT_N_Tiles * (index + 1)
-  //     );
-
-  //     lastRowTemp = Array.from(
-  //       {
-  //         length: SQRT_N_Tiles,
-  //       },
-  //       (_, index) => nTiles - SQRT_N_Tiles + (index + 1)
-  //     );
-
-  //     setBorderTiles([...lastColTemp, ...lastRowTemp]);
-  //     console.log(lastColTemp, lastRowTemp);
-  //   } else {
-  //     console.log({
-  //       message:
-  //         "nTiles or Number of Tiles should be a true square root\n and equal or greater than 25 \ni.e: 25(5),36(6),49(7),64(8),9(81).",
-  //     });
-  //   }
-  // }, [nTiles, SQRT_N_Tiles, tilesData]);
-
-  /* CALC THE HINT ROW AND COLS */
+  //   console.log(sumsOfRow);
+  // }, []);
+  /* CONSOLE LOGGING */
 
   return (
     <div className="app flex flex-col justify-center items-center  h-screen w-screen bg-blue-100">
@@ -155,32 +138,17 @@ function App() {
         </div>
       )}
       <div className="w-fit h-fit flex flex-col justify-center items-center ">
-        <div className="text-6xl ">
-          Score: <span className="font-bold">{score}</span>
+        <div className="flex justify-between items-center">
+          <LevelSlider gridSize={nTiles} setGridSize={setNTiles} />
+          <div className="text-6xl ">
+            Score: <span className="font-bold">{score}</span>
+          </div>
         </div>
+
         {/* THE TILE BUTTONS */}
 
-        <div className={`flex flex-col justify-center items-center `}>
+        <div className={`flex flex-col justify-center items-start `}>
           <div className={`flex justify-center items-center`}>
-            {/* <div>
-              <TileGrids gridCols={SQRT_N_Tiles}>
-                {tilesData.map((row, rowIndex) =>
-                row.map(tile, colIndex) => (
-                  <TileButton
-                    // lastCol={lastCol}
-                    // lastRow={lastRow}
-                    key={index}
-                    setBombFound={setBombFound}
-                    index={index + 1}
-                    value={tile[index].value}
-                    flipCard={() => !tile[index].isFlipped && flipCard(index)}
-                    cardFlipped={tile[index].isFlipped}
-                    lastTile={nTiles}
-                    setScore={setScore}
-                  />
-                ))}
-              </TileGrids>
-            </div> */}
             <div>
               <TileGrids gridCols={SQRT_N_Tiles}>
                 {tilesData.map((row, rowIndex) =>
@@ -208,36 +176,25 @@ function App() {
             <div
               className={`flex flex-col bg-orange-300 rounded-md p-5 pl-3 rounded-l-none rounded-b-none  gap-3 `}
             >
-              {Array.from({ length: SQRT_N_Tiles }).map((tile, index) => (
-                <HintTiles
-                  // lastCol={lastCol}
-                  // lastRow={lastRow}
-                  tilesData={tilesData}
-                  SQRT_N_Tiles={SQRT_N_Tiles}
-                  key={index}
-                  index={index + 1}
-                  value={0}
-                  lastTile={nTiles}
-                />
-              ))}
+              <HintTiles values={sumsOfRow} />
+
+              {/* {Array.from({ length: SQRT_N_Tiles }).map((tile, index) => (
+                <HintTiles key={index} values={sumsOfRow} />
+              ))} */}
             </div>
           </div>
 
           <div
             className={`flex bg-orange-300 rounded-md p-5 pt-0 rounded-t-none  gap-3 `}
           >
-            {Array.from({ length: SQRT_N_Tiles + 1 }).map((tile, index) => (
+            <HintTiles values={sumsOfCol} />
+            {/* {Array.from({ length: SQRT_N_Tiles + 1 }).map((tile, index) => (
               <HintTiles
-                // lastCol={lastCol}
-                // lastRow={lastRow}
-                tilesData={tilesData}
-                SQRT_N_Tiles={SQRT_N_Tiles}
-                key={index}
-                index={index + 1}
-                value={0}
-                lastTile={nTiles}
+               
+              
+                values={sumsOfCol}
               />
-            ))}
+            ))} */}
           </div>
           {/* THE HINT TILES  */}
         </div>
