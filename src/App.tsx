@@ -105,7 +105,7 @@ function App() {
     });
     setBombsInRow(newBombsInRow);
 
-    const newBombsInCol = newTilesData[0].map((col, colIndex) => {
+    const newBombsInCol = newTilesData[0].map((_, colIndex) => {
       let count = 0;
       for (let rowIndex = 0; rowIndex < SQRT_N_Tiles; rowIndex++) {
         if (newTilesData[rowIndex][colIndex].value === 0) count = count + 1;
