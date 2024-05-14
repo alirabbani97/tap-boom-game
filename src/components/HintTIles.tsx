@@ -4,7 +4,7 @@ type THintTiles = {
   values: number[];
 };
 
-const HintTiles = React.memo(({ values }: THintTiles) => {
+const HintTiles = (({ values }: THintTiles) => {
   console.log("Rendering HintTiles");
   return (
     <>

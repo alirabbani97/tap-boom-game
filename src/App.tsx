@@ -11,13 +11,16 @@ type TtileData = {
 
 function App() {
   /* VARIABLES */
-  const [nTiles, setNTiles] = useState(64); //Can only be a true square root number and equal or greater than 16 i.e:16(4),25(5),36(6),49(7),64(8),9(81) etc.
+  const [nTiles, setNTiles] = useState<number>(16); //Can only be a true square root number and equal or greater than 16 i.e:16(4),25(5),36(6),49(7),64(8),9(81) etc.
   const SQRT_N_Tiles: number = Math.sqrt(nTiles);
   const [score, setScore] = useState<number>(0);
   const [bombFound, setBombFound] = useState<boolean>(false);
   const [bombsAdded, setBombsAdded] = useState(0);
   const [bonusesAdded, setBonusesAdded] = useState(0);
   const [flippedTiles, setFlippedTiles] = useState(0);
+  const [tilesData, setTilesData] = useState<TtileData[][]>([]);
+  const [sumsOfRow, setSumsOfRow] = useState<number[]>([]);
+  const [sumsOfCol, setSumsOfCol] = useState<number[]>([]);
 
   const level1 = {
     nTiles: nTiles,
@@ -29,7 +32,6 @@ function App() {
   /* STATES */
 
   /* STATES */
-
   const tileRNG = (): number => {
     const rng = Math.floor(Math.random() * 4);
 
@@ -64,50 +66,36 @@ function App() {
     return 1;
   };
 
-  const [tilesData, setTilesData] = useState<TtileData[][]>(
-    Array.from({ length: SQRT_N_Tiles }, () =>
+ 
+
+  useEffect(() => {
+    setBombsAdded(0)
+    setBonusesAdded(0)
+    const newTilesData = Array.from({ length: SQRT_N_Tiles }, () =>
       Array.from({ length: SQRT_N_Tiles }, () => {
         return { value: tileRNG(), isFlipped: false };
       })
-    )
-  );
+    );
+    setTilesData(newTilesData);
 
-  const [sumsOfRow] = useState<number[]>(() => {
-    const sumArr: number[] = [];
-    for (const row of tilesData) {
+    const newSumsOfRow = newTilesData.map((row) => {
       let sum = 0;
       for (const tile of row) {
         sum = sum + tile.value;
       }
-      sumArr.push(sum);
-    }
-    return sumArr;
-  });
+      return sum;
+    });
+    setSumsOfRow(newSumsOfRow);
 
-  const [sumsOfCol] = useState<number[]>(() => {
-    const sumArr: number[] = [];
-    for (const row of tilesData) {
+    const newSumsOfCol = newTilesData[0].map((_, colIndex) => {
       let sum = 0;
-      for (const tile of row) {
-        sum = sum + tile.value;
+      for (let rowIndex = 0; rowIndex < SQRT_N_Tiles; rowIndex++) {
+        sum = sum + newTilesData[rowIndex][colIndex].value;
       }
-      sumArr.push(sum);
-    }
-    return sumArr;
-  });
-
-  // useEffect(() => {
-  //   const sumArr: number[] = [];
-  //   for (const row of tilesData) {
-  //     let sum = 0;
-  //     for (const tile of row) {
-  //       sum = sum + tile.value;
-  //     }
-  //     sumArr.push(sum);
-  //   }
-  //   setSumsOfRow(sumArr);
-  //   console.log(sumsOfRow);
-  // }, []);
+      return sum;
+    });
+    setSumsOfCol(newSumsOfCol);
+  }, [nTiles,SQRT_N_Tiles]);
 
   const flipCard = (rowIndex: number, colIndex: number) => {
     setTilesData((prevTilesData) =>
@@ -138,7 +126,7 @@ function App() {
         </div>
       )}
       <div className="w-fit h-fit flex flex-col justify-center items-center ">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center w-full">
           <LevelSlider gridSize={nTiles} setGridSize={setNTiles} />
           <div className="text-6xl ">
             Score: <span className="font-bold">{score}</span>
