@@ -17,6 +17,7 @@ export default function LevelSlider({
             type="radio"
             id="16"
             name="grid_size"
+            defaultChecked
             className=""
             onClick={() => {
               setGridSize(16);

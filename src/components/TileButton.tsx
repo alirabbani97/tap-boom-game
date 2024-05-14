@@ -8,6 +8,7 @@ type TTileButton = {
   value: number | null;
   index: number;
   setBombFound: (arg: boolean) => void;
+  bombFound: boolean;
   setScore: React.Dispatch<React.SetStateAction<number>>;
 };
 
@@ -20,6 +21,7 @@ export default function TileButton({
   flipCard,
   cardFlipped,
   setBombFound,
+  bombFound,
   // borderTiles,
   setScore,
 }: TTileButton) {
@@ -48,8 +50,8 @@ export default function TileButton({
         }
       }}
     >
-      {value}
-      {cardFlipped ? `${value}` : "?"}
+      
+      {cardFlipped || bombFound ? `${value}` : "?"}
     </button>
   );
 }

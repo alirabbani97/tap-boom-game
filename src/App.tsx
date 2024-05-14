@@ -136,16 +136,16 @@ function App() {
   return (
     <div className="app flex flex-col justify-center items-center  h-screen w-screen bg-blue-100">
       {bombFound && (
-        <div className="absolute w-screen h-screen z-50 bg-black/30 flex flex-col justify-center items-center ">
-          <div className="animate-slide-in-top  duration-[1500ms]   bg-white p-10 rounded-lg border-4 border-blue-500">
-            <span className="text-6xl font-bold">Game Over</span>
+        <div className="absolute w-screen h-screen z-50 bg-black/30 flex flex-col justify-start items-center ">
+          <div className="animate-slide-in-top duration-[1500ms] bg-white/100 p-10 rounded-lg border-4 border-blue-500">
+            <span className="text-5xl font-bold">Game Over</span>
           </div>
         </div>
       )}
       <div className="w-fit h-fit flex flex-col justify-center items-center ">
         <div className="flex justify-between items-center w-full">
           <LevelSlider gridSize={nTiles} setGridSize={setNTiles} />
-          <div className="text-6xl ">
+          <div className="text-4xl ">
             Score: <span className="font-bold">{score}</span>
           </div>
         </div>
@@ -159,6 +159,7 @@ function App() {
                 {tilesData.map((row, rowIndex) =>
                   row.map((tile, colIndex) => (
                     <TileButton
+                    bombFound={bombFound}
                       key={`${rowIndex}-${colIndex}`}
                       setBombFound={setBombFound}
                       index={rowIndex + colIndex + 1}
