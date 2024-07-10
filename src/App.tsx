@@ -6,7 +6,8 @@ import LevelSlider from "./components/LevelSlider";
 
 type TtileData = {
   value: number;
-  isFlipped?: boolean | undefined;
+  isFlipped?: boolean;
+  isFlagged?: boolean;
 };
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
   const [bombsAdded, setBombsAdded] = useState(0);
   const [bonusesAdded, setBonusesAdded] = useState(0);
   const [flippedTiles, setFlippedTiles] = useState(0);
+  const [flaggedTiles, setFlaggedTiles] = useState(0);
   const [tilesData, setTilesData] = useState<TtileData[][]>([]);
   const [sumsOfRow, setSumsOfRow] = useState<number[]>([]);
   const [sumsOfCol, setSumsOfCol] = useState<number[]>([]);
@@ -73,7 +75,7 @@ function App() {
     setBonusesAdded(0);
     const newTilesData = Array.from({ length: SQRT_N_Tiles }, () =>
       Array.from({ length: SQRT_N_Tiles }, () => {
-        return { value: tileRNG(), isFlipped: false };
+        return { value: tileRNG(), isFlipped: false, isFlagged: false };
       })
     );
     setTilesData(newTilesData);
@@ -126,6 +128,24 @@ function App() {
 
     setFlippedTiles(flippedTiles + 1);
   };
+  const flagCard = (rowIndex: number, colIndex: number) => {
+    setTilesData((prevTilesData) =>
+      prevTilesData.map((row, i) =>
+        row.map((tile, j) =>
+          i === rowIndex && j === colIndex
+            ? { ...tile, isFlagged: !tile.isFlagged } // Toggle the flag
+            : tile
+        )
+      )
+    );
+
+    // Update the flaggedTiles count
+    setFlaggedTiles((prevFlaggedTiles) =>
+      tilesData[rowIndex][colIndex].isFlagged
+        ? prevFlaggedTiles - 1
+        : prevFlaggedTiles + 1
+    );
+  };
 
   /* CONSOLE LOGGING */
   useEffect(() => {
@@ -167,7 +187,9 @@ function App() {
                       flipCard={() =>
                         !tile.isFlipped && flipCard(rowIndex, colIndex)
                       }
+                      flagCard={() => flagCard(rowIndex, colIndex)}
                       cardFlipped={tile.isFlipped}
+                      cardFlagged={tile.isFlagged}
                       lastTile={nTiles}
                       setScore={setScore}
                     />
