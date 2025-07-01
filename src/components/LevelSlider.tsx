@@ -5,7 +5,7 @@ export default function LevelSlider({
   setGridSize,
 }: {
   gridSize: number;
-  setGridSize: Dispatch<SetStateAction<number>>;
+  setGridSize: (size: number) => void;
 }) {
   return (
     <div className="card bg-base-200 shadow-md rounded-xl p-4 flex flex-col items-center mb-4 w-fit">

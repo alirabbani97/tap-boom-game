@@ -8,8 +8,8 @@ type THintTiles = {
 
 const HintTiles = ({ values, bombs }: THintTiles) => {
   // Only ever render one tile per instance
-  const value = values[0];
-  const bomb = bombs[0];
+  const value = Number.isFinite(values[0]) ? values[0] : 0;
+  const bomb = Number.isFinite(bombs[0]) ? bombs[0] : 0;
   return (
     <div className="card w-full h-full bg-base-200 shadow-md rounded-xl flex flex-col items-center justify-center p-2">
       <span className="badge badge-primary text-lg font-extrabold mb-1 px-4 py-2 rounded-full">

@@ -26,15 +26,13 @@ function App() {
   const [bombsInCol, setBombsInCol] = useState<number[]>([]);
   const [restartKey, setRestartKey] = useState<number>(0);
   const levelUpTimeout = useRef<number | null>(null);
+  const [manualGridChange, setManualGridChange] = useState(false);
 
   // Dynamic grid and bomb scaling
-  let gridSize = 16;
   let maxBombs = 3;
   if (level >= 6 && level <= 10) {
-    gridSize = 25;
     maxBombs = 4;
   } else if (level >= 11) {
-    gridSize = 36;
     maxBombs = Math.floor(Math.random() * 2) + 5; // 5 or 6 bombs
   }
 
@@ -48,19 +46,38 @@ function App() {
     return arr;
   }
 
+  // When LevelSlider is used, set manualGridChange and update nTiles
+  const handleGridSizeChange = (size: number) => {
+    setManualGridChange(true);
+    setNTiles(size);
+  };
+
   // Generate new level or board
   useEffect(() => {
-    // If nTiles was changed by the LevelSlider, reset level to 1
-    if (nTiles !== gridSize) setLevel(1);
+    // Only reset level if grid size was changed manually
+    if (manualGridChange) {
+      setLevel(1);
+      setManualGridChange(false);
+    }
     const SQRT = Math.sqrt(nTiles);
     // Generate flat array with bombs and numbers
     const totalTiles = nTiles;
     const bombs = Array(maxBombs).fill(0);
-    const numbers = Array(totalTiles - maxBombs)
-      .fill(0)
-      .map(() => Math.ceil(Math.random() * 3));
-    const allTiles = shuffle([...bombs, ...numbers]);
+    const nonBombTiles = totalTiles - maxBombs;
 
+    // Value distribution
+    const n3 = Math.floor(nonBombTiles * 0.1);
+    const n2 = Math.floor(nonBombTiles * 0.4);
+    const n1 = nonBombTiles - n2 - n3;
+
+    // Randomly distribute 3s, 2s, and 1s among non-bomb tiles
+    const nonBombValues = [
+      ...Array(n3).fill(3),
+      ...Array(n2).fill(2),
+      ...Array(n1).fill(1),
+    ];
+    shuffle(nonBombValues);
+    const allTiles = shuffle([...bombs, ...nonBombValues]);
     // Build 2D grid
     const newTilesData: TtileData[][] = [];
     for (let i = 0; i < SQRT; i++) {
@@ -141,7 +158,7 @@ function App() {
         levelUpTimeout.current = setTimeout(() => {
           setShowLevelUp(false);
           setLevel((prev) => prev + 1);
-        }, 1500);
+        }, 3000);
       }
     }, 0);
   };
@@ -216,7 +233,7 @@ function App() {
   const frameSize = MIN_TILE_SIZE * (SQRT_N_Tiles + 1) + GAP * SQRT_N_Tiles;
 
   return (
-    <div className="app min-h-screen min-w-screen flex flex-col items-center bg-blue-100 font-sans">
+    <div className="app min-h-screen min-w-screen flex flex-col items-center justify-center bg-[#fef0e1] font-sans ">
       {/* Level Up Animation */}
       {showLevelUp && (
         <div className="fixed top-0 left-1/2 transform -translate-x-1/2 z-50 mt-6 flex justify-center w-full pointer-events-none animate-bounceIn">
@@ -277,10 +294,11 @@ function App() {
         </div>
       )}
       {/* Main Game Grid, centered and a bit towards the top */}
-      <div
-        className="flex flex-col items-center justify-center w-full"
-        style={{ minHeight: "60vh", marginTop: "3vh" }}
-      >
+      <div className="absolute top-1/2 left-1/2  -translate-x-1/2 -translate-y-1/2  w-[600px] h-[600px] min-h-[100vh] bg-[hsl(31,50%,94%)]">
+        {" "}
+        {/* Grid Frame for the grid */}{" "}
+      </div>
+      <div className="absolute top-1/2 left-1/2  -translate-x-[69%] -translate-y-[60%] min-h-[60vh]">
         <div
           className="grid aspect-square"
           style={{
@@ -312,7 +330,7 @@ function App() {
       </div>
       {/* Development: Grid Sizer in bottom right */}
       <div className="fixed bottom-4 right-4 z-50 bg-base-200 rounded-xl shadow-lg p-2 border border-primary">
-        <LevelSlider gridSize={nTiles} setGridSize={setNTiles} />
+        <LevelSlider gridSize={nTiles} setGridSize={handleGridSizeChange} />
       </div>
     </div>
   );
