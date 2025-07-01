@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import TileButton from "./components/TileButton";
 import HintTiles from "./components/HintTIles";
-import LevelSlider from "./components/LevelSlider";
 import Card from "./components/card";
 
 type TtileData = {
@@ -11,9 +10,12 @@ type TtileData = {
 
 function App() {
   /* VARIABLES */
-  const [nTiles, setNTiles] = useState<number>(16); //Can only be a true square root number and equal or greater than 16 i.e:16(4),25(5),36(6),49(7),64(8),9(81) etc.
+  const [level, setLevel] = useState<number>(1);
+  const [showLevelUp, setShowLevelUp] = useState<boolean>(false);
+  const [nTiles, setNTiles] = useState<number>(16); // Will be set dynamically
   const SQRT_N_Tiles: number = Math.sqrt(nTiles);
   const [score, setScore] = useState<number>(1);
+  const [cumulativeScore, setCumulativeScore] = useState<number>(0);
   const [bombFound, setBombFound] = useState<boolean>(false);
   const [win, setWin] = useState<boolean>(false);
   const [tilesData, setTilesData] = useState<TtileData[][]>([]);
@@ -22,8 +24,18 @@ function App() {
   const [bombsInRow, setBombsInRow] = useState<number[]>([]);
   const [bombsInCol, setBombsInCol] = useState<number[]>([]);
   const [restartKey, setRestartKey] = useState<number>(0);
+  const levelUpTimeout = useRef<number | null>(null);
 
-  const numberOfBombs = SQRT_N_Tiles; // or scale as desired
+  // Dynamic grid and bomb scaling
+  let gridSize = 16;
+  let maxBombs = 3;
+  if (level >= 6 && level <= 10) {
+    gridSize = 25;
+    maxBombs = 4;
+  } else if (level >= 11) {
+    gridSize = 36;
+    maxBombs = Math.floor(Math.random() * 2) + 5; // 5 or 6 bombs
+  }
 
   // Helper to shuffle an array
   function shuffle<T>(array: T[]): T[] {
@@ -35,25 +47,26 @@ function App() {
     return arr;
   }
 
+  // Generate new level
   useEffect(() => {
+    setNTiles(gridSize);
+    const SQRT = Math.sqrt(gridSize);
     // Generate flat array with bombs and numbers
-    const totalTiles = nTiles;
-    const bombs = Array(numberOfBombs).fill(0);
-    const numbers = Array(totalTiles - numberOfBombs)
+    const totalTiles = gridSize;
+    const bombs = Array(maxBombs).fill(0);
+    const numbers = Array(totalTiles - maxBombs)
       .fill(0)
       .map(() => Math.ceil(Math.random() * 3));
     const allTiles = shuffle([...bombs, ...numbers]);
 
     // Build 2D grid
     const newTilesData: TtileData[][] = [];
-    for (let i = 0; i < SQRT_N_Tiles; i++) {
+    for (let i = 0; i < SQRT; i++) {
       newTilesData.push(
-        allTiles
-          .slice(i * SQRT_N_Tiles, (i + 1) * SQRT_N_Tiles)
-          .map((value) => ({
-            value,
-            isFlipped: false,
-          }))
+        allTiles.slice(i * SQRT, (i + 1) * SQRT).map((value) => ({
+          value,
+          isFlipped: false,
+        }))
       );
     }
     setTilesData(newTilesData);
@@ -89,8 +102,9 @@ function App() {
     setScore(1);
     setBombFound(false);
     setWin(false);
-  }, [nTiles, SQRT_N_Tiles, restartKey]);
+  }, [level, restartKey]);
 
+  // Level completion logic
   const flipCard = (rowIndex: number, colIndex: number) => {
     if (tilesData[rowIndex][colIndex].isFlipped || bombFound || win) return;
     const tile = tilesData[rowIndex][colIndex];
@@ -108,22 +122,41 @@ function App() {
     }
     setScore((prev) => prev * (tile.value || 1));
 
-    // Check win condition
+    // Check level completion: all non-bomb tiles with value > 1 are revealed
     setTimeout(() => {
-      const totalNonBombs = tilesData
+      const allHighValueTiles = tilesData
         .flat()
-        .filter((t) => t.value !== 0).length;
-      const flippedNonBombs =
-        tilesData.flat().filter((t) => t.value !== 0 && t.isFlipped).length + 1; // +1 for this flip
-      if (flippedNonBombs >= totalNonBombs) {
-        setWin(true);
+        .filter((t) => t.value !== 0 && t.value !== 1);
+      const revealedHighValueTiles =
+        tilesData
+          .flat()
+          .filter((t) => t.value !== 0 && t.value !== 1 && t.isFlipped).length +
+        (tile.value > 1 ? 1 : 0); // +1 if this flip is >1
+      if (revealedHighValueTiles >= allHighValueTiles.length) {
+        // Level up
+        setShowLevelUp(true);
+        setCumulativeScore((prev) => prev + score * (tile.value || 1));
+        levelUpTimeout.current = setTimeout(() => {
+          setShowLevelUp(false);
+          setLevel((prev) => prev + 1);
+        }, 1500);
       }
     }, 0);
   };
 
+  // Reset everything on game over
   const handleRestart = () => {
     setRestartKey((k) => k + 1);
+    setLevel(1);
+    setCumulativeScore(0);
   };
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (levelUpTimeout.current) clearTimeout(levelUpTimeout.current);
+    };
+  }, []);
 
   /* CONSOLE LOGGING */
   useEffect(() => {
@@ -133,6 +166,25 @@ function App() {
 
   return (
     <div className="app min-h-screen min-w-screen flex flex-col justify-center items-center bg-blue-100 font-sans">
+      {/* Level Up Animation */}
+      {showLevelUp && (
+        <div className="fixed top-0 left-1/2 transform -translate-x-1/2 z-50 mt-6 flex justify-center w-full pointer-events-none animate-bounceIn">
+          <div className="pointer-events-auto">
+            <Card
+              header={
+                <span className="text-3xl text-success font-extrabold">
+                  LEVEL UP!
+                </span>
+              }
+              className="w-[20rem] px-4 py-2 border-success border-4"
+            >
+              <div className="text-xl font-bold text-success mb-2 text-center">
+                Welcome to Level {level + 1}!
+              </div>
+            </Card>
+          </div>
+        </div>
+      )}
       {/* Overlay for Game Over or Win */}
       {(bombFound || win) && (
         <div className="fixed top-0 left-1/2 transform -translate-x-1/2 z-50 mt-6 flex justify-center w-full pointer-events-none">
@@ -163,7 +215,11 @@ function App() {
               className="w-[28rem] px-4 py-2"
             >
               <div className="text-2xl font-bold text-gray-700 mb-2">
-                Score: <span className="text-primary">{score}</span>
+                Level: <span className="text-primary">{level}</span>
+              </div>
+              <div className="text-xl font-bold text-success mb-2">
+                Cumulative Score:{" "}
+                <span className="text-primary">{cumulativeScore}</span>
               </div>
             </Card>
           </div>
@@ -177,9 +233,15 @@ function App() {
               TILE GUESSING GAME
             </span>
             <div className="flex flex-row items-center gap-4">
-              <LevelSlider gridSize={nTiles} setGridSize={setNTiles} />
+              <span className="text-xl sm:text-2xl font-bold text-success bg-base-200 rounded-xl px-4 py-2 border-2 border-success/30 shadow">
+                Level: <span className="text-primary">{level}</span>
+              </span>
               <span className="text-xl sm:text-2xl font-bold text-success bg-base-200 rounded-xl px-4 py-2 border-2 border-success/30 shadow">
                 Score: <span className="text-primary">{score}</span>
+              </span>
+              <span className="text-xl sm:text-2xl font-bold text-success bg-base-200 rounded-xl px-4 py-2 border-2 border-success/30 shadow">
+                Cumulative:{" "}
+                <span className="text-primary">{cumulativeScore}</span>
               </span>
             </div>
           </div>
