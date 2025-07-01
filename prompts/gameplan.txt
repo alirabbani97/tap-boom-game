@@ -1,0 +1,33 @@
+
+- Optionally, track cumulative score across levels for leaderboard or achievement purposes.
+
+Optional Enhancements
+- Add a progress bar or tile counter to show how many high-value tiles remain to complete the level.
+- Introduce a summary screen between levels showing score, time taken, and accuracy.
+- Allow difficulty customization (e.g., fixed grid size, bomb density, or tile value distribution).
+- Track the highest level reached in a session for replayability and competitive scoring.
+
+Optional Extensions (for Future Development)
+
+Gameplay Enhancements
+- Add a flagging system to mark suspected bombs, allowing players to track their deductions.
+- Introduce difficulty levels with varying bomb density, grid sizes, and tile value distributions.
+- Implement a timer or move counter to reward faster or more efficient playthroughs with bonus points or rankings.
+- Include a limited number of hints that reveal a safe tile or eliminate a possible bomb location.
+- Add a “second chance” mechanic, such as a one-time shield or undo option, to recover from a mistaken bomb click.
+User Interface & Feedback
+- Add visual effects (e.g., tile flip animations, particle effects) for revealing tiles and triggering bombs.
+- Include audio feedback for different actions: safe tile reveal, bomb trigger, flag placement, and game win/loss.
+- Provide a dynamic score tracker and progress bar to show how many non-bomb tiles remain.
+- Display row and column headers with color-coded indicators (e.g., green for completed rows, red for inconsistencies).
+Progression & Replayability
+- Introduce a level-based campaign mode with increasingly complex grids and logic challenges.
+- Add daily or weekly puzzle challenges with leaderboards.
+- Include achievements or badges for milestones like “First Win,” “Perfect Game,” or “Fastest Clear.”
+- Allow players to save and resume games, especially for larger grids.
+Customization & Accessibility
+- Offer themes or skins for tiles and the board (e.g., classic, futuristic, minimalist).
+- Include accessibility options such as colorblind-friendly palettes, adjustable font sizes, and keyboard navigation.
+- Allow players to customize grid size and bomb count in a sandbox or practice mode.
+
+

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import TileButton from "./components/TileButton";
 import HintTiles from "./components/HintTIles";
 import Card from "./components/card";
+import LevelSlider from "./components/LevelSlider";
 
 type TtileData = {
   value: number;
@@ -47,12 +48,13 @@ function App() {
     return arr;
   }
 
-  // Generate new level
+  // Generate new level or board
   useEffect(() => {
-    setNTiles(gridSize);
-    const SQRT = Math.sqrt(gridSize);
+    // If nTiles was changed by the LevelSlider, reset level to 1
+    if (nTiles !== gridSize) setLevel(1);
+    const SQRT = Math.sqrt(nTiles);
     // Generate flat array with bombs and numbers
-    const totalTiles = gridSize;
+    const totalTiles = nTiles;
     const bombs = Array(maxBombs).fill(0);
     const numbers = Array(totalTiles - maxBombs)
       .fill(0)
@@ -102,7 +104,7 @@ function App() {
     setScore(1);
     setBombFound(false);
     setWin(false);
-  }, [level, restartKey]);
+  }, [level, restartKey, nTiles]);
 
   // Level completion logic
   const flipCard = (rowIndex: number, colIndex: number) => {
@@ -164,8 +166,57 @@ function App() {
   }, []);
   /* CONSOLE LOGGING */
 
+  // Build a true (N+1)x(N+1) grid as a flat array
+  const gridCells = [];
+  for (let row = 0; row < SQRT_N_Tiles + 1; row++) {
+    for (let col = 0; col < SQRT_N_Tiles + 1; col++) {
+      if (row === 0 && col === 0) {
+        // Top-left empty cell
+        gridCells.push(<div key="empty" />);
+      } else if (row === 0) {
+        // Column hints
+        gridCells.push(
+          <HintTiles
+            key={`col-hint-${col - 1}`}
+            values={[sumsOfCol[col - 1]]}
+            bombs={[bombsInCol[col - 1]]}
+          />
+        );
+      } else if (col === 0) {
+        // Row hints
+        gridCells.push(
+          <HintTiles
+            key={`row-hint-${row - 1}`}
+            values={[sumsOfRow[row - 1]]}
+            bombs={[bombsInRow[row - 1]]}
+          />
+        );
+      } else {
+        // Tiles
+        const tile = tilesData[row - 1]?.[col - 1];
+        gridCells.push(
+          <TileButton
+            bombFound={bombFound}
+            key={`${row - 1}-${col - 1}`}
+            setBombFound={setBombFound}
+            index={row - 1 + col - 1 + 1}
+            value={tile?.value}
+            flipCard={() => !tile?.isFlipped && flipCard(row - 1, col - 1)}
+            cardFlipped={tile?.isFlipped}
+            lastTile={nTiles}
+          />
+        );
+      }
+    }
+  }
+
+  // Dynamic frame size calculation
+  const MIN_TILE_SIZE = 56; // px
+  const GAP = 4; // px
+  const frameSize = MIN_TILE_SIZE * (SQRT_N_Tiles + 1) + GAP * SQRT_N_Tiles;
+
   return (
-    <div className="app min-h-screen min-w-screen flex flex-col justify-center items-center bg-blue-100 font-sans">
+    <div className="app min-h-screen min-w-screen flex flex-col items-center bg-blue-100 font-sans">
       {/* Level Up Animation */}
       {showLevelUp && (
         <div className="fixed top-0 left-1/2 transform -translate-x-1/2 z-50 mt-6 flex justify-center w-full pointer-events-none animate-bounceIn">
@@ -225,77 +276,44 @@ function App() {
           </div>
         </div>
       )}
-      {/* Main Game Panel */}
-      <Card
-        header={
-          <div className="flex flex-row items-center justify-between gap-6 w-full px-2 py-1">
-            <span className="text-2xl sm:text-3xl font-extrabold tracking-wide text-primary drop-shadow-md flex-shrink-0">
-              TILE GUESSING GAME
-            </span>
-            <div className="flex flex-row items-center gap-4">
-              <span className="text-xl sm:text-2xl font-bold text-success bg-base-200 rounded-xl px-4 py-2 border-2 border-success/30 shadow">
-                Level: <span className="text-primary">{level}</span>
-              </span>
-              <span className="text-xl sm:text-2xl font-bold text-success bg-base-200 rounded-xl px-4 py-2 border-2 border-success/30 shadow">
-                Score: <span className="text-primary">{score}</span>
-              </span>
-              <span className="text-xl sm:text-2xl font-bold text-success bg-base-200 rounded-xl px-4 py-2 border-2 border-success/30 shadow">
-                Cumulative:{" "}
-                <span className="text-primary">{cumulativeScore}</span>
-              </span>
-            </div>
-          </div>
-        }
-        className="w-fit h-fit flex flex-col items-center p-6 mt-8"
+      {/* Main Game Grid, centered and a bit towards the top */}
+      <div
+        className="flex flex-col items-center justify-center w-full"
+        style={{ minHeight: "60vh", marginTop: "3vh" }}
       >
-        {/* GRID-BASED BOARD LAYOUT */}
         <div
-          className="grid"
+          className="grid aspect-square"
           style={{
-            gridTemplateColumns: `repeat(${SQRT_N_Tiles + 1}, minmax(0, 1fr))`,
-            gridTemplateRows: `repeat(${SQRT_N_Tiles + 1}, minmax(0, 1fr))`,
-            gap: "0.75rem",
+            gridTemplateColumns: `repeat(${SQRT_N_Tiles + 1}, 1fr)`,
+            gridTemplateRows: `repeat(${SQRT_N_Tiles + 1}, 1fr)`,
+            gap: `${GAP}px`,
+            width: frameSize,
+            height: frameSize,
+            maxWidth: "100vw",
+            maxHeight: "70vh",
+            minWidth: 0,
+            minHeight: 0,
           }}
         >
-          {/* Top-left empty cell */}
-          <div />
-          {/* Column hints */}
-          {sumsOfCol.map((value, i) => (
-            <HintTiles
-              key={`col-hint-${i}`}
-              values={[value]}
-              bombs={[bombsInCol[i]]}
-              horizontal={false}
-              tileSize="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32"
-            />
-          ))}
-          {/* Row hints and grid tiles */}
-          {tilesData.map((row, rowIdx) => (
-            <>
-              <HintTiles
-                key={`row-hint-${rowIdx}`}
-                values={[sumsOfRow[rowIdx]]}
-                bombs={[bombsInRow[rowIdx]]}
-                horizontal={false}
-                tileSize="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32"
-              />
-              {row.map((tile, colIdx) => (
-                <TileButton
-                  bombFound={bombFound}
-                  key={`${rowIdx}-${colIdx}`}
-                  setBombFound={setBombFound}
-                  index={rowIdx + colIdx + 1}
-                  value={tile.value}
-                  flipCard={() => !tile.isFlipped && flipCard(rowIdx, colIdx)}
-                  cardFlipped={tile.isFlipped}
-                  lastTile={nTiles}
-                  setScore={setScore}
-                />
-              ))}
-            </>
-          ))}
+          {gridCells}
         </div>
-      </Card>
+      </div>
+      {/* Docked header/navbar at the bottom */}
+      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[600px] bg-base-100 border-t-2 border-primary shadow-lg flex flex-row items-center justify-between gap-4 px-4 py-3 z-40">
+        <span className="text-xs sm:text-base font-bold text-success bg-base-200 rounded-xl px-3 py-1 border-2 border-success/30 shadow">
+          Level: <span className="text-primary">{level}</span>
+        </span>
+        <span className="text-xs sm:text-base font-bold text-success bg-base-200 rounded-xl px-3 py-1 border-2 border-success/30 shadow">
+          Score: <span className="text-primary">{score}</span>
+        </span>
+        <span className="text-xs sm:text-base font-bold text-success bg-base-200 rounded-xl px-3 py-1 border-2 border-success/30 shadow">
+          Cumulative: <span className="text-primary">{cumulativeScore}</span>
+        </span>
+      </div>
+      {/* Development: Grid Sizer in bottom right */}
+      <div className="fixed bottom-4 right-4 z-50 bg-base-200 rounded-xl shadow-lg p-2 border border-primary">
+        <LevelSlider gridSize={nTiles} setGridSize={setNTiles} />
+      </div>
     </div>
   );
 }

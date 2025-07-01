@@ -1,37 +1,44 @@
-this is a tile guessing game,
-Tile Guessing Game – Core Design Specification
-Design a logic-based tile guessing game with the following mechanics and structure:
+Design a logic-based tile guessing game with dynamic level progression, increasing difficulty, and strategic tile distribution. The game challenges players to reveal high-value tiles while avoiding bombs, using numeric hints and deduction.
 
-Grid Layout
-- The game board is a square grid of variable size (e.g., 4×4, 5×5, 6×6, etc.).
-- Each cell (tile) starts hidden and can be revealed by the player.
-- Numeric headers are displayed along the top (columns) and left (rows) of the grid.
+Leveling System
+- The game begins at Level 1.
+- A new level starts automatically when the player successfully reveals all non-bomb tiles with values greater than 1 (i.e., only 2s and 3s).
+- The game continues to progress through levels until the player clicks on a bomb, which ends the session.
 
-Objective
-- The player must reveal all non-bomb tiles.
-- Revealing a bomb results in an immediate game over.
-
-Tile Values and Scoring
-- Each non-bomb tile contains a hidden value: either 1, 2, or 3.
-- When a tile is revealed, its value is multiplied with the current score.
-- The score starts at 1.
-- Example: Revealing tiles with values 2, 3, and 1 results in a score of 1 × 2 × 3 × 1 = 6.
-
-Row and Column Headers
-- Each row and column has a header number that represents the sum of all tile values in that row or column (excluding bombs).
-- Example: If a row contains three tiles with values 3, 2, and 1, the row header displays 6.
-- These headers serve as logical clues to help the player deduce which tiles are safe.
-
-Bomb Mechanics
-- A fixed number of tiles are randomly assigned as bombs.
-- Bombs do not contribute to the row or column header sums.
-- The number of bombs can scale with grid size or difficulty level.
-
-Gameplay Flow
-- The player selects a tile to reveal.
-- If the tile is a bomb, the game ends.
-- If the tile is a number, it is revealed and the score is updated by multiplying the value.
-- The player uses the row and column headers to infer the location of bombs and safe tiles.
-- The game is won when all non-bomb tiles are successfully revealed.
+Grid and Bomb Scaling by Level
+| Level Range | Grid Size | Maximum Bombs Allowed | 
+| Levels 1–5 | 4×4 (16) | 3 bombs | 
+| Levels 6–10 | 5×5 (25) | 4 bombs | 
+| Levels 11+ | 6×6 (36) | 5 to 6 bombs (randomized) | 
 
 
+- Bombs are randomly placed at the start of each level.
+- The number of bombs is capped based on the current level range.
+- Grid size increases at key level thresholds to introduce complexity.
+
+Tile Value Distribution
+- Non-bomb tiles are assigned values according to the following fixed ratio:
+- 1s: 50% of non-bomb tiles
+- 2s: 40% of non-bomb tiles
+- 3s: 10% of non-bomb tiles
+Placement Constraints for 3s:
+- 4×4 and 5×5 grids: Each row and column may contain at most one tile with a value of 3.
+- 6×6 grid: Each row and column may contain at most two tiles with a value of 3.
+These constraints ensure that 3s remain rare and strategically significant, while preserving logical solvability.
+
+Level Indicator
+- Display the current level prominently on the game interface (e.g., top-left or top-right corner).
+- The level indicator updates dynamically as the player progresses.
+- Include a transition animation or message (e.g., “Level Up!”) when advancing to the next level.
+
+Score and Progression
+- The score multiplier resets to 1 at the start of each level.
+- Revealing a tile multiplies the current score by its value (1, 2, or 3).
+- The level is completed only when all non-bomb tiles with values 2 or 3 are revealed.
+- Tiles with a value of 1 are optional and do not count toward level completion.
+
+Optional Enhancements
+- Add a progress tracker showing how many high-value tiles remain.
+- Include a summary screen between levels with stats (score, time, accuracy).
+- Track the highest level reached and cumulative score for leaderboard integration.
+- Allow sandbox mode with customizable grid size, bomb count, and tile ratios.

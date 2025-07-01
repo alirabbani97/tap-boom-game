@@ -9,7 +9,7 @@ type TTileButton = {
   index: number;
   setBombFound: (arg: boolean) => void;
   bombFound: boolean;
-  setScore: React.Dispatch<React.SetStateAction<number>>;
+  // tilePx?: number;
 };
 
 export default function TileButton({
@@ -22,14 +22,14 @@ export default function TileButton({
   cardFlipped,
   setBombFound,
   bombFound,
-  // borderTiles,
-  setScore,
-}: TTileButton) {
+}: // borderTiles,
+// tilePx = 60,
+TTileButton) {
   return (
     <button
       disabled={cardFlipped}
       className={`
-        w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32
+        w-full h-full
         flex items-center justify-center
         text-5xl sm:text-6xl font-extrabold
         rounded-2xl shadow-lg border-4
@@ -49,15 +49,6 @@ export default function TileButton({
           setBombFound(true);
         }
         flipCard();
-        if (value !== 0 && value !== null) {
-          setScore((prev: number) => {
-            if (prev === 0) {
-              return prev + value;
-            } else {
-              return prev * value;
-            }
-          });
-        }
       }}
     >
       {cardFlipped || bombFound ? (
