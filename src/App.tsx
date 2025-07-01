@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import TileGrids from "./components/TileGrids";
 import TileButton from "./components/TileButton";
 import HintTiles from "./components/HintTIles";
 import LevelSlider from "./components/LevelSlider";
+import Card from "./components/card";
 
 type TtileData = {
   value: number;
@@ -132,93 +132,108 @@ function App() {
   /* CONSOLE LOGGING */
 
   return (
-    <div className="app flex flex-col justify-center items-center  h-screen w-screen bg-blue-100">
+    <div className="app min-h-screen min-w-screen flex flex-col justify-center items-center bg-blue-100 font-sans">
+      {/* Overlay for Game Over or Win */}
       {(bombFound || win) && (
-        <div className="absolute w-screen h-screen z-50 bg-black/30 flex flex-col justify-start items-center ">
-          <div
-            className={`animate-slide-in-top duration-[1500ms] bg-white/100 p-10 rounded-lg border-4 border-${
-              win ? "green" : "blue"
-            }-500 flex flex-col items-center`}
-          >
-            <span
-              className={`text-5xl font-bold ${
-                win ? "text-green-600" : "text-blue-600"
-              }`}
+        <div className="fixed top-0 left-1/2 transform -translate-x-1/2 z-50 mt-6 flex justify-center w-full pointer-events-none">
+          <div className="pointer-events-auto">
+            <Card
+              header={
+                win ? (
+                  <span className="flex items-center gap-2">
+                    <span className="text-3xl">VICTORY</span>
+                    {win && (
+                      <span className="flex gap-1 text-yellow-400 text-3xl">
+                        ★ ★ ★
+                      </span>
+                    )}
+                  </span>
+                ) : (
+                  <span className="text-3xl">GAME OVER</span>
+                )
+              }
+              actions={
+                <button
+                  className="btn btn-primary btn-lg rounded-full px-10 mt-2 shadow-md"
+                  onClick={handleRestart}
+                >
+                  Restart
+                </button>
+              }
+              className="w-[28rem] px-4 py-2"
             >
-              {win ? "You Win!" : "Game Over"}
-            </span>
-            <button
-              className="mt-8 px-8 py-3 bg-blue-500 hover:bg-blue-700 text-white text-2xl font-semibold rounded-lg shadow"
-              onClick={handleRestart}
-            >
-              Restart
-            </button>
+              <div className="text-2xl font-bold text-gray-700 mb-2">
+                Score: <span className="text-primary">{score}</span>
+              </div>
+            </Card>
           </div>
         </div>
       )}
-      <div className="w-fit h-fit flex flex-col justify-center items-center ">
-        <div className="flex justify-between items-center w-full">
-          <LevelSlider gridSize={nTiles} setGridSize={setNTiles} />
-          <div className="text-4xl ">
-            Score: <span className="font-bold">{score}</span>
-          </div>
-        </div>
-
-        {/* THE TILE BUTTONS */}
-
-        <div className={`flex flex-col justify-center items-start `}>
-          <div className={`flex justify-center items-center`}>
-            <div>
-              <TileGrids gridCols={SQRT_N_Tiles}>
-                {tilesData.map((row, rowIndex) =>
-                  row.map((tile, colIndex) => (
-                    <TileButton
-                      bombFound={bombFound}
-                      key={`${rowIndex}-${colIndex}`}
-                      setBombFound={setBombFound}
-                      index={rowIndex + colIndex + 1}
-                      value={tile.value}
-                      flipCard={() =>
-                        !tile.isFlipped && flipCard(rowIndex, colIndex)
-                      }
-                      cardFlipped={tile.isFlipped}
-                      lastTile={nTiles}
-                      setScore={setScore}
-                    />
-                  ))
-                )}
-              </TileGrids>
-            </div>
-
-            {/* THE TILE BUTTONS */}
-
-            {/* THE HINT TILES  */}
-            <div
-              className={`flex flex-col bg-orange-300 rounded-md p-5 pl-3 rounded-l-none rounded-b-none  gap-3 `}
-            >
-              <HintTiles values={sumsOfRow} bombs={bombsInRow} />
-
-              {/* {Array.from({ length: SQRT_N_Tiles }).map((tile, index) => (
-                <HintTiles key={index} values={sumsOfRow} />
-              ))} */}
+      {/* Main Game Panel */}
+      <Card
+        header={
+          <div className="flex flex-row items-center justify-between gap-6 w-full px-2 py-1">
+            <span className="text-2xl sm:text-3xl font-extrabold tracking-wide text-primary drop-shadow-md flex-shrink-0">
+              TILE GUESSING GAME
+            </span>
+            <div className="flex flex-row items-center gap-4">
+              <LevelSlider gridSize={nTiles} setGridSize={setNTiles} />
+              <span className="text-xl sm:text-2xl font-bold text-success bg-base-200 rounded-xl px-4 py-2 border-2 border-success/30 shadow">
+                Score: <span className="text-primary">{score}</span>
+              </span>
             </div>
           </div>
-
-          <div
-            className={`flex bg-orange-300 rounded-md p-5 pt-0 rounded-t-none  gap-3 `}
-          >
-            <HintTiles values={sumsOfCol} bombs={bombsInCol} />
-            {/* {Array.from({ length: SQRT_N_Tiles + 1 }).map((tile, index) => (
+        }
+        className="w-fit h-fit flex flex-col items-center p-6 mt-8"
+      >
+        {/* GRID-BASED BOARD LAYOUT */}
+        <div
+          className="grid"
+          style={{
+            gridTemplateColumns: `repeat(${SQRT_N_Tiles + 1}, minmax(0, 1fr))`,
+            gridTemplateRows: `repeat(${SQRT_N_Tiles + 1}, minmax(0, 1fr))`,
+            gap: "0.75rem",
+          }}
+        >
+          {/* Top-left empty cell */}
+          <div />
+          {/* Column hints */}
+          {sumsOfCol.map((value, i) => (
+            <HintTiles
+              key={`col-hint-${i}`}
+              values={[value]}
+              bombs={[bombsInCol[i]]}
+              horizontal={false}
+              tileSize="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32"
+            />
+          ))}
+          {/* Row hints and grid tiles */}
+          {tilesData.map((row, rowIdx) => (
+            <>
               <HintTiles
-               
-              
-                values={sumsOfCol}
+                key={`row-hint-${rowIdx}`}
+                values={[sumsOfRow[rowIdx]]}
+                bombs={[bombsInRow[rowIdx]]}
+                horizontal={false}
+                tileSize="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32"
               />
-            ))} */}
-          </div>
-          {/* THE HINT TILES  */}
+              {row.map((tile, colIdx) => (
+                <TileButton
+                  bombFound={bombFound}
+                  key={`${rowIdx}-${colIdx}`}
+                  setBombFound={setBombFound}
+                  index={rowIdx + colIdx + 1}
+                  value={tile.value}
+                  flipCard={() => !tile.isFlipped && flipCard(rowIdx, colIdx)}
+                  cardFlipped={tile.isFlipped}
+                  lastTile={nTiles}
+                  setScore={setScore}
+                />
+              ))}
+            </>
+          ))}
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

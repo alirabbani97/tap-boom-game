@@ -10,7 +10,7 @@ export default function TileGrids({ children, gridCols }: TTilesGrid) {
 
   return (
     <div
-      className={`grid bg-orange-300 rounded-md rounded-r-none rounded-b-none p-5 pr-0 gap-3`}
+      className="grid bg-base-100 rounded-3xl p-4 gap-4 shadow-lg border-2 border-primary"
       style={{ gridTemplateColumns: gridSize }}
     >
       {children}
