@@ -13,109 +13,88 @@ function App() {
   /* VARIABLES */
   const [nTiles, setNTiles] = useState<number>(16); //Can only be a true square root number and equal or greater than 16 i.e:16(4),25(5),36(6),49(7),64(8),9(81) etc.
   const SQRT_N_Tiles: number = Math.sqrt(nTiles);
-  const [score, setScore] = useState<number>(0);
+  const [score, setScore] = useState<number>(1);
   const [bombFound, setBombFound] = useState<boolean>(false);
-  const [bombsAdded, setBombsAdded] = useState(0);
-  const [bonusesAdded, setBonusesAdded] = useState(0);
-  const [flippedTiles, setFlippedTiles] = useState(0);
+  const [win, setWin] = useState<boolean>(false);
   const [tilesData, setTilesData] = useState<TtileData[][]>([]);
   const [sumsOfRow, setSumsOfRow] = useState<number[]>([]);
   const [sumsOfCol, setSumsOfCol] = useState<number[]>([]);
   const [bombsInRow, setBombsInRow] = useState<number[]>([]);
   const [bombsInCol, setBombsInCol] = useState<number[]>([]);
+  const [restartKey, setRestartKey] = useState<number>(0);
 
-  const level1 = {
-    nTiles: nTiles,
-    numberOfBombs: SQRT_N_Tiles,
-    numberOfBonuses: 5,
-  };
+  const numberOfBombs = SQRT_N_Tiles; // or scale as desired
 
-  /* VARIABLES */
-  /* STATES */
-
-  /* STATES */
-  const tileRNG = (): number => {
-    const rng = Math.floor(Math.random() * 4);
-
-    switch (rng) {
-      case 0:
-        if (bombsAdded < level1.numberOfBombs) {
-          setBombsAdded(bombsAdded + 1);
-          return 0;
-        }
-        break;
-      case 1:
-        if (bonusesAdded === level1.numberOfBonuses) {
-          return 1;
-        }
-        break;
-
-      case 2:
-        if (bonusesAdded < level1.numberOfBonuses) {
-          setBonusesAdded(bonusesAdded + 1);
-          return 2;
-        }
-        break;
-
-      case 3:
-        if (bonusesAdded < level1.numberOfBonuses) {
-          setBonusesAdded(bonusesAdded + 1);
-          return 3;
-        }
-        break;
+  // Helper to shuffle an array
+  function shuffle<T>(array: T[]): T[] {
+    const arr = array.slice();
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
     }
-
-    return 1;
-  };
+    return arr;
+  }
 
   useEffect(() => {
-    setBombsAdded(0);
-    setBonusesAdded(0);
-    const newTilesData = Array.from({ length: SQRT_N_Tiles }, () =>
-      Array.from({ length: SQRT_N_Tiles }, () => {
-        return { value: tileRNG(), isFlipped: false };
-      })
-    );
+    // Generate flat array with bombs and numbers
+    const totalTiles = nTiles;
+    const bombs = Array(numberOfBombs).fill(0);
+    const numbers = Array(totalTiles - numberOfBombs)
+      .fill(0)
+      .map(() => Math.ceil(Math.random() * 3));
+    const allTiles = shuffle([...bombs, ...numbers]);
+
+    // Build 2D grid
+    const newTilesData: TtileData[][] = [];
+    for (let i = 0; i < SQRT_N_Tiles; i++) {
+      newTilesData.push(
+        allTiles
+          .slice(i * SQRT_N_Tiles, (i + 1) * SQRT_N_Tiles)
+          .map((value) => ({
+            value,
+            isFlipped: false,
+          }))
+      );
+    }
     setTilesData(newTilesData);
 
-    const newSumsOfRow = newTilesData.map((row) => {
-      let sum = 0;
-      for (const tile of row) {
-        sum = sum + tile.value;
-      }
-      return sum;
-    });
+    // Calculate row/col sums and bomb counts
+    const newSumsOfRow = newTilesData.map((row) =>
+      row.reduce((sum, tile) => (tile.value !== 0 ? sum + tile.value : sum), 0)
+    );
     setSumsOfRow(newSumsOfRow);
 
-    const newSumsOfCol = newTilesData[0].map((_, colIndex) => {
-      let sum = 0;
-      for (let rowIndex = 0; rowIndex < SQRT_N_Tiles; rowIndex++) {
-        sum = sum + newTilesData[rowIndex][colIndex].value;
-      }
-      return sum;
-    });
+    const newSumsOfCol = newTilesData[0].map((_, colIndex) =>
+      newTilesData.reduce(
+        (sum, row) =>
+          row[colIndex].value !== 0 ? sum + row[colIndex].value : sum,
+        0
+      )
+    );
     setSumsOfCol(newSumsOfCol);
 
-    const newBombsInRow = newTilesData.map((row) => {
-      let count = 0;
-      for (const tile of row) {
-        if (tile.value === 0) count = count + 1;
-      }
-      return count;
-    });
+    const newBombsInRow = newTilesData.map((row) =>
+      row.reduce((count, tile) => (tile.value === 0 ? count + 1 : count), 0)
+    );
     setBombsInRow(newBombsInRow);
 
-    const newBombsInCol = newTilesData[0].map((_, colIndex) => {
-      let count = 0;
-      for (let rowIndex = 0; rowIndex < SQRT_N_Tiles; rowIndex++) {
-        if (newTilesData[rowIndex][colIndex].value === 0) count = count + 1;
-      }
-      return count;
-    });
+    const newBombsInCol = newTilesData[0].map((_, colIndex) =>
+      newTilesData.reduce(
+        (count, row) => (row[colIndex].value === 0 ? count + 1 : count),
+        0
+      )
+    );
     setBombsInCol(newBombsInCol);
-  }, [nTiles, SQRT_N_Tiles]);
+
+    setScore(1);
+    setBombFound(false);
+    setWin(false);
+  }, [nTiles, SQRT_N_Tiles, restartKey]);
 
   const flipCard = (rowIndex: number, colIndex: number) => {
+    if (tilesData[rowIndex][colIndex].isFlipped || bombFound || win) return;
+    const tile = tilesData[rowIndex][colIndex];
+    const isBomb = tile.value === 0;
     setTilesData((prevTilesData) =>
       prevTilesData.map((row, i) =>
         row.map((tile, j) =>
@@ -123,8 +102,27 @@ function App() {
         )
       )
     );
+    if (isBomb) {
+      setBombFound(true);
+      return;
+    }
+    setScore((prev) => prev * (tile.value || 1));
 
-    setFlippedTiles(flippedTiles + 1);
+    // Check win condition
+    setTimeout(() => {
+      const totalNonBombs = tilesData
+        .flat()
+        .filter((t) => t.value !== 0).length;
+      const flippedNonBombs =
+        tilesData.flat().filter((t) => t.value !== 0 && t.isFlipped).length + 1; // +1 for this flip
+      if (flippedNonBombs >= totalNonBombs) {
+        setWin(true);
+      }
+    }, 0);
+  };
+
+  const handleRestart = () => {
+    setRestartKey((k) => k + 1);
   };
 
   /* CONSOLE LOGGING */
@@ -135,10 +133,26 @@ function App() {
 
   return (
     <div className="app flex flex-col justify-center items-center  h-screen w-screen bg-blue-100">
-      {bombFound && (
+      {(bombFound || win) && (
         <div className="absolute w-screen h-screen z-50 bg-black/30 flex flex-col justify-start items-center ">
-          <div className="animate-slide-in-top duration-[1500ms] bg-white/100 p-10 rounded-lg border-4 border-blue-500">
-            <span className="text-5xl font-bold">Game Over</span>
+          <div
+            className={`animate-slide-in-top duration-[1500ms] bg-white/100 p-10 rounded-lg border-4 border-${
+              win ? "green" : "blue"
+            }-500 flex flex-col items-center`}
+          >
+            <span
+              className={`text-5xl font-bold ${
+                win ? "text-green-600" : "text-blue-600"
+              }`}
+            >
+              {win ? "You Win!" : "Game Over"}
+            </span>
+            <button
+              className="mt-8 px-8 py-3 bg-blue-500 hover:bg-blue-700 text-white text-2xl font-semibold rounded-lg shadow"
+              onClick={handleRestart}
+            >
+              Restart
+            </button>
           </div>
         </div>
       )}
