@@ -1,4 +1,4 @@
-import { HiOutlineFire } from "react-icons/hi";
+// import { HiOutlineFire } from "react-icons/hi";
 
 type THintTiles = {
   values: number[];
