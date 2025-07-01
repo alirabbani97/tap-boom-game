@@ -32,18 +32,24 @@ TTileButton) {
         w-full h-full
         flex items-center justify-center
         text-5xl sm:text-6xl font-extrabold
-        rounded-2xl shadow-lg border-4
+        rounded-2xl
+        shadow-[0_4px_0_0_#C1C8E4,0_8px_24px_0_rgba(88,128,233,0.10)]
+        border-4
         transition-all duration-200
         select-none
         ${
           cardFlipped || bombFound
             ? value === 0
-              ? "bg-error border-error text-white scale-95"
-              : "bg-base-200 border-primary text-primary-content scale-95"
-            : "bg-accent border-accent-content text-accent-content hover:bg-accent-focus hover:scale-105"
+              ? "bg-purple border-purple text-white scale-95"
+              : "bg-skyblue border-primaryblue text-primaryblue scale-95"
+            : "bg-primaryblue border-primaryblue text-white hover:bg-lightblue hover:scale-105"
         }
         ${cardFlipped ? "" : "cursor-pointer"}
+        animate-tile-float
       `}
+      style={{
+        boxShadow: "0 4px 0 0 #C1C8E4, 0 8px 24px 0 rgba(88,128,233,0.10)",
+      }}
       onClick={() => {
         if (value === 0) {
           setBombFound(true);

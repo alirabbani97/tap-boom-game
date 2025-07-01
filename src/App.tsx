@@ -233,7 +233,7 @@ function App() {
   const frameSize = MIN_TILE_SIZE * (SQRT_N_Tiles + 1) + GAP * SQRT_N_Tiles;
 
   return (
-    <div className="app min-h-screen min-w-screen flex flex-col items-center justify-center bg-[#fef0e1] font-sans ">
+    <div className="app min-h-screen min-w-screen flex flex-col items-center justify-center font-sans bg-gradient-to-br from-primaryblue via-lightblue to-lavender">
       {/* Level Up Animation */}
       {showLevelUp && (
         <div className="fixed top-0 left-1/2 transform -translate-x-1/2 z-50 mt-6 flex justify-center w-full pointer-events-none animate-bounceIn">
@@ -255,49 +255,42 @@ function App() {
       )}
       {/* Overlay for Game Over or Win */}
       {(bombFound || win) && (
-        <div className="fixed top-0 left-1/2 transform -translate-x-1/2 z-50 mt-6 flex justify-center w-full pointer-events-none">
-          <div className="pointer-events-auto">
-            <Card
-              header={
-                win ? (
-                  <span className="flex items-center gap-2">
-                    <span className="text-3xl">VICTORY</span>
-                    {win && (
-                      <span className="flex gap-1 text-yellow-400 text-3xl">
-                        ★ ★ ★
-                      </span>
-                    )}
+        <div className="fixed inset-0 z-50 flex flex-col items-start justify-start">
+          <div className="absolute inset-0 bg-black/30" />
+          <div className="w-full flex justify-center mt-8 animate-slide-down-fade">
+            <div
+              className="bg-primaryblue text-white rounded-3xl shadow-2xl border-4 border-purple px-10 py-8 flex flex-col items-center"
+              style={{ minWidth: 320, maxWidth: 420 }}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-4xl font-extrabold tracking-wide mb-2">
+                  {win ? "VICTORY" : "GAME OVER"}
+                </span>
+                {win && (
+                  <span className="flex gap-1 text-yellow-300 text-3xl mb-2">
+                    ★ ★ ★
                   </span>
-                ) : (
-                  <span className="text-3xl">GAME OVER</span>
-                )
-              }
-              actions={
+                )}
+                <div className="text-xl font-bold text-lavender mb-1">
+                  Level: <span className="text-white">{level}</span>
+                </div>
+                <div className="text-lg font-bold text-lavender mb-2">
+                  Cumulative Score:{" "}
+                  <span className="text-white">{cumulativeScore}</span>
+                </div>
                 <button
-                  className="btn btn-primary btn-lg rounded-full px-10 mt-2 shadow-md"
+                  className="btn bg-purple text-white btn-lg rounded-full px-10 mt-2 shadow-md hover:bg-[#6846a6] transition"
                   onClick={handleRestart}
                 >
                   Restart
                 </button>
-              }
-              className="w-[28rem] px-4 py-2"
-            >
-              <div className="text-2xl font-bold text-gray-700 mb-2">
-                Level: <span className="text-primary">{level}</span>
               </div>
-              <div className="text-xl font-bold text-success mb-2">
-                Cumulative Score:{" "}
-                <span className="text-primary">{cumulativeScore}</span>
-              </div>
-            </Card>
+            </div>
           </div>
         </div>
       )}
       {/* Main Game Grid, centered and a bit towards the top */}
-      <div className="absolute top-1/2 left-1/2  -translate-x-1/2 -translate-y-1/2  w-[600px] h-[600px] min-h-[100vh] bg-[hsl(31,50%,94%)]">
-        {" "}
-        {/* Grid Frame for the grid */}{" "}
-      </div>
+      <div className="absolute top-1/2 left-1/2  -translate-x-1/2 -translate-y-1/2  w-[600px] h-[600px] min-h-[100vh] bg-white/10  blur-xl " />
       <div className="absolute top-1/2 left-1/2  -translate-x-[69%] -translate-y-[60%] min-h-[60vh]">
         <div
           className="grid aspect-square"
@@ -317,19 +310,19 @@ function App() {
         </div>
       </div>
       {/* Docked header/navbar at the bottom */}
-      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[600px] bg-base-100 border-t-2 border-primary shadow-lg flex flex-row items-center justify-between gap-4 px-4 py-3 z-40">
-        <span className="text-xs sm:text-base font-bold text-success bg-base-200 rounded-xl px-3 py-1 border-2 border-success/30 shadow">
-          Level: <span className="text-primary">{level}</span>
+      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[600px] bg-primaryblue  border-t-2 border-primaryblue shadow-[0_-4px_24px_0_rgba(88,128,233,0.10)] flex flex-row items-center justify-between gap-4 px-4 py-3 z-40 rounded-t-2xl animate-navbar-fade">
+        <span className="text-xs sm:text-base font-bold text-white bg-primaryblue rounded-xl px-3 py-1 border-2 border-white/20 shadow">
+          Level: <span className="text-yellow-200">{level}</span>
         </span>
-        <span className="text-xs sm:text-base font-bold text-success bg-base-200 rounded-xl px-3 py-1 border-2 border-success/30 shadow">
-          Score: <span className="text-primary">{score}</span>
+        <span className="text-xs sm:text-base font-bold text-white bg-skyblue/70 rounded-xl px-3 py-1 border-2 border-white/20 shadow">
+          Score: <span className="text-yellow-200">{score}</span>
         </span>
-        <span className="text-xs sm:text-base font-bold text-success bg-base-200 rounded-xl px-3 py-1 border-2 border-success/30 shadow">
-          Cumulative: <span className="text-primary">{cumulativeScore}</span>
+        <span className="text-xs sm:text-base font-bold text-white bg-primaryblue rounded-xl px-3 py-1 border-2 border-white/20 shadow">
+          Cumulative: <span className="text-yellow-200">{cumulativeScore}</span>
         </span>
       </div>
       {/* Development: Grid Sizer in bottom right */}
-      <div className="fixed bottom-4 right-4 z-50 bg-base-200 rounded-xl shadow-lg p-2 border border-primary">
+      <div className="fixed bottom-4 right-4 z-50 bg-lavender rounded-xl shadow-lg p-2 border-2 border-primaryblue animate-navbar-fade">
         <LevelSlider gridSize={nTiles} setGridSize={handleGridSizeChange} />
       </div>
     </div>
