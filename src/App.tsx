@@ -16,6 +16,7 @@ function App() {
   const [restartKey, setRestartKey] = useState<number>(0);
   const levelUpTimeout = useRef<number | null>(null);
   const [nTiles, setNTiles] = useState<number>(16); // For LevelSlider only
+  const [manualGridSize, setManualGridSize] = useState<boolean>(false);
 
   // LevelSlider handler
   const handleGridSizeChange = (size: number) => {
@@ -26,6 +27,7 @@ function App() {
     setWin(false);
     setRestartKey((k) => k + 1);
     setNTiles(size);
+    setManualGridSize(true);
   };
 
   // Level up handler
@@ -58,6 +60,7 @@ function App() {
     setScore(1);
     setBombFound(false);
     setWin(false);
+    setManualGridSize(false);
   };
 
   // Clean up timeout on unmount
@@ -88,6 +91,7 @@ function App() {
           key={restartKey + "-" + level + "-" + nTiles}
           level={level}
           nTiles={nTiles}
+          manualGridSize={manualGridSize}
           bombFound={bombFound}
           win={win}
           onLevelComplete={handleLevelComplete}

@@ -12,6 +12,7 @@ type TtileData = {
 type GameGridProps = {
   level: number;
   nTiles: number;
+  manualGridSize: boolean;
   bombFound: boolean;
   win: boolean;
   onLevelComplete: (score: number) => void;
@@ -24,6 +25,7 @@ const GAP = 8; // px
 const GameGrid = ({
   level,
   nTiles,
+  manualGridSize,
   bombFound,
   win,
   onLevelComplete,
@@ -33,16 +35,27 @@ const GameGrid = ({
   // Dynamic grid and bomb scaling by level
   let gridTiles = nTiles; // default to prop
   let maxBombs = 3;
-  if (level >= 1 && level <= 5) {
-    gridTiles = 16;
-    maxBombs = Math.floor(Math.random() * 2) + 3; // 3 or 4 bombs
-  } else if (level >= 6 && level <= 10) {
-    gridTiles = 25;
-    maxBombs = Math.floor(Math.random() * 2) + 4; // 4 or 5 bombs
-  } else if (gridTiles === 25) {
-    maxBombs = 4;
-  } else if (gridTiles === 36) {
-    maxBombs = Math.floor(Math.random() * 2) + 5;
+  if (!manualGridSize) {
+    if (level >= 1 && level <= 5) {
+      gridTiles = 16;
+      maxBombs = Math.floor(Math.random() * 2) + 3; // 3 or 4 bombs
+    } else if (level >= 6 && level <= 10) {
+      gridTiles = 25;
+      maxBombs = Math.floor(Math.random() * 2) + 4; // 4 or 5 bombs
+    } else if (gridTiles === 25) {
+      maxBombs = 4;
+    } else if (gridTiles === 36) {
+      maxBombs = Math.floor(Math.random() * 2) + 5;
+    }
+  } else {
+    // Manual mode: use nTiles and scale bombs accordingly
+    if (gridTiles === 16) {
+      maxBombs = Math.floor(Math.random() * 2) + 3; // 3 or 4 bombs
+    } else if (gridTiles === 25) {
+      maxBombs = Math.floor(Math.random() * 2) + 4; // 4 or 5 bombs
+    } else if (gridTiles === 36) {
+      maxBombs = Math.floor(Math.random() * 2) + 5;
+    }
   }
   const SQRT_N_Tiles = Math.sqrt(gridTiles);
   const frameSize = MIN_TILE_SIZE * (SQRT_N_Tiles + 1) + GAP * SQRT_N_Tiles;
