@@ -7,8 +7,6 @@ type TTileButton = {
   cardFlipped: boolean | undefined;
   value: number | null;
   index: number;
-  setBombFound: (arg: boolean) => void;
-  bombFound: boolean;
   // tilePx?: number;
 };
 
@@ -20,8 +18,6 @@ export default function TileButton({
   value,
   flipCard,
   cardFlipped,
-  setBombFound,
-  bombFound,
 }: // borderTiles,
 // tilePx = 60,
 TTileButton) {
@@ -38,10 +34,10 @@ TTileButton) {
         transition-all duration-200
         select-none
         ${
-          cardFlipped || bombFound
+          cardFlipped
             ? value === 0
               ? "bg-purple border-purple text-white scale-95"
-              : "bg-skyblue border-primaryblue text-primaryblue scale-95"
+              : "bg-green-200 border-green-400 text-green-900 scale-95"
             : "bg-primaryblue border-primaryblue text-white hover:bg-lightblue hover:scale-105"
         }
         ${cardFlipped ? "" : "cursor-pointer"}
@@ -50,14 +46,9 @@ TTileButton) {
       style={{
         boxShadow: "0 4px 0 0 #C1C8E4, 0 8px 24px 0 rgba(88,128,233,0.10)",
       }}
-      onClick={() => {
-        if (value === 0) {
-          setBombFound(true);
-        }
-        flipCard();
-      }}
+      onClick={flipCard}
     >
-      {cardFlipped || bombFound ? (
+      {cardFlipped ? (
         value === 0 ? (
           <span className="text-4xl">💣</span>
         ) : (
