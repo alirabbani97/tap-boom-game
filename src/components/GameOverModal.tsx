@@ -14,39 +14,66 @@ export default function GameOverModal({
   return (
     <div>
       {(bombFound || win) && (
-        <div className="fixed inset-0 z-50 flex flex-col items-start justify-start bg-black/30 pointer-events-none">
-          <div className="absolute inset-0" />
-          <div className="w-full flex justify-center mt-8 animate-slide-down-fade">
+        <>
+          {/* Overlay */}
+          <div className="fixed inset-0 bg-black/40 z-40 pointer-events-none" />
+          {/* Bar */}
+          <div className="fixed top-0 left-0 w-full z-50 flex justify-center animate-slide-down-fade pointer-events-none">
             <div
-              className="bg-primaryblue text-white rounded-3xl shadow-2xl border-4 border-purple px-10 py-8 flex flex-col items-center pointer-events-auto"
-              style={{ minWidth: 320, maxWidth: 420 }}
+              className={`w-full max-w-xl rounded-b-2xl shadow-2xl border-b-4 px-8 py-4 flex flex-row items-center justify-between pointer-events-auto mt-0
+                ${
+                  win
+                    ? "bg-green-600 border-green-700 text-white"
+                    : "bg-red-900 border-red-950 text-red-100"
+                }`}
+              style={{ minWidth: 320 }}
             >
-              <div className="flex flex-col items-center gap-2">
-                <span className="text-4xl font-extrabold tracking-wide mb-2">
-                  {win ? "VICTORY" : "GAME OVER"}
-                </span>
+              {/* Left: Game Over / Victory */}
+              <span
+                className={`text-3xl font-extrabold tracking-wide ${
+                  win ? "text-white" : "text-red-100"
+                }`}
+              >
+                {win ? "VICTORY" : "GAME OVER"}
+              </span>
+              {/* Middle: Info */}
+              <div className="flex flex-col items-center mx-4">
                 {win && (
-                  <span className="flex gap-1 text-yellow-300 text-3xl mb-2">
+                  <span className="flex gap-1 text-yellow-300 text-xl mb-1">
                     ★ ★ ★
                   </span>
                 )}
-                <div className="text-xl font-bold text-lavender mb-1">
+                <div
+                  className={`text-lg font-bold ${
+                    win ? "text-green-100" : "text-red-200"
+                  }`}
+                >
                   Level: <span className="text-white">{level}</span>
                 </div>
-                <div className="text-lg font-bold text-lavender mb-2">
-                  Cumulative Score:{" "}
+                <div
+                  className={`text-lg font-bold ${
+                    win ? "text-green-100" : "text-red-200"
+                  }`}
+                >
+                  Cumulative:{" "}
                   <span className="text-white">{cumulativeScore}</span>
                 </div>
-                <button
-                  className="btn bg-purple text-white btn-lg rounded-full px-10 mt-2 shadow-md hover:bg-[#6846a6] transition"
-                  onClick={handleRestart}
-                >
-                  Restart
-                </button>
               </div>
+              {/* Right: Restart Button */}
+              <button
+                className={`btn btn-md rounded-full px-6 ml-4 shadow-lg text-lg font-bold transition
+                  ${
+                    win
+                      ? "bg-green-800 text-white hover:bg-green-700"
+                      : "bg-yellow-400 text-red-900 hover:bg-yellow-300 border-2 border-yellow-200"
+                  }`}
+                onClick={handleRestart}
+              >
+                Restart
+              </button>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

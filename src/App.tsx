@@ -68,7 +68,7 @@ function App() {
   }, []);
 
   return (
-    <div className="app min-h-screen min-w-screen flex flex-col items-center justify-center font-sans bg-gradient-to-br from-primaryblue via-lightblue to-lavender">
+    <div className="app min-h-screen min-w-screen flex flex-col items-center justify-center font-comfortaa bg-gradient-to-br from-primaryblue via-lightblue to-lavender">
       {/* Level Up Alert */}
       <LevelUpAlert showLevelUp={showLevelUp} level={level} />
 

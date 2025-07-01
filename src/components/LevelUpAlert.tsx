@@ -1,24 +1,25 @@
-import Card from "./card";
-
-export default function LevelUpAlert({showLevelUp, level}: {showLevelUp: boolean, level: number}) {
+export default function LevelUpAlert({
+  showLevelUp,
+  level,
+}: {
+  showLevelUp: boolean;
+  level: number;
+}) {
   return (
     <div>
-        {/* Level Up Animation */}
-        {showLevelUp && (
-        <div className="fixed top-0 left-1/2 transform -translate-x-1/2 z-50 mt-6 flex justify-center w-full pointer-events-none animate-bounceIn">
-          <div className="pointer-events-auto">
-            <Card
-              header={
-                <span className="text-3xl text-success font-extrabold">
-                  LEVEL UP!
-                </span>
-              }
-              className="w-[20rem] px-4 py-2 border-success border-4"
-            >
-              <div className="text-xl font-bold text-success mb-2 text-center">
-                Welcome to Level {level + 1}!
-              </div>
-            </Card>
+      {/* Level Up Animation */}
+      {showLevelUp && (
+        <div className="fixed top-0 left-0 w-full z-50 flex justify-center animate-bounceIn pointer-events-none">
+          <div
+            className="w-full max-w-xl rounded-b-2xl shadow-2xl border-b-4 border-green-900 bg-green-700 text-green-100 px-8 py-4 flex flex-row items-center justify-center pointer-events-auto mt-0"
+            style={{ minWidth: 320 }}
+          >
+            <span className="text-3xl font-extrabold tracking-wide mr-4 text-white">
+              LEVEL UP!
+            </span>
+            <span className="text-xl font-bold text-green-100">
+              Welcome to Level {level + 1}!
+            </span>
           </div>
         </div>
       )}

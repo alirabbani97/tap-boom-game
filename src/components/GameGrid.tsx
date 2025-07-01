@@ -189,7 +189,7 @@ const GameGrid = ({
   }
   return (
     <div
-      className="grid aspect-square"
+      className="grid aspect-square font-comfortaa"
       style={{
         gridTemplateColumns: `repeat(${SQRT_N_Tiles + 1}, 1fr)`,
         gridTemplateRows: `repeat(${SQRT_N_Tiles + 1}, 1fr)`,

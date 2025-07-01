@@ -27,11 +27,12 @@ TTileButton) {
       className={`
         w-full h-full
         flex items-center justify-center
-        text-5xl sm:text-6xl font-extrabold
+        text-center
+        text-5xl  font-extrabold
         rounded-2xl
         shadow-[0_4px_0_0_#C1C8E4,0_8px_24px_0_rgba(88,128,233,0.10)]
-        border-4
         transition-all duration-200
+        leading-none
         select-none
         ${
           cardFlipped
