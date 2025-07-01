@@ -30,14 +30,21 @@ const GameGrid = ({
   onBombFound,
   onScoreChange,
 }: GameGridProps) => {
-  // Dynamic bomb scaling only
+  // Dynamic grid and bomb scaling by level
+  let gridTiles = nTiles; // default to prop
   let maxBombs = 3;
-  if (nTiles === 25) {
+  if (level >= 1 && level <= 5) {
+    gridTiles = 16;
+    maxBombs = Math.floor(Math.random() * 2) + 3; // 3 or 4 bombs
+  } else if (level >= 6 && level <= 10) {
+    gridTiles = 25;
+    maxBombs = Math.floor(Math.random() * 2) + 4; // 4 or 5 bombs
+  } else if (gridTiles === 25) {
     maxBombs = 4;
-  } else if (nTiles === 36) {
+  } else if (gridTiles === 36) {
     maxBombs = Math.floor(Math.random() * 2) + 5;
   }
-  const SQRT_N_Tiles = Math.sqrt(nTiles);
+  const SQRT_N_Tiles = Math.sqrt(gridTiles);
   const frameSize = MIN_TILE_SIZE * (SQRT_N_Tiles + 1) + GAP * SQRT_N_Tiles;
 
   // State
@@ -51,12 +58,18 @@ const GameGrid = ({
   // Board generation
   useEffect(() => {
     // Generate flat array with bombs and numbers
-    const totalTiles = nTiles;
+    const totalTiles = gridTiles;
     const bombs = Array(maxBombs).fill(0);
     const nonBombTiles = totalTiles - maxBombs;
-    const n3 = Math.floor(nonBombTiles * 0.1);
-    const n2 = Math.floor(nonBombTiles * 0.4);
-    const n1 = nonBombTiles - n2 - n3;
+    // 1s always fill 50%
+    const n1 = Math.floor(nonBombTiles * 0.5);
+    // 2s and 3s share the other 50%, but 3s never exceed 25% and never drop below 10%
+    const max3 = Math.floor(nonBombTiles * 0.25);
+    const min3 = Math.ceil(nonBombTiles * 0.1);
+    const remaining = nonBombTiles - n1;
+    let n3 = Math.floor(Math.random() * (max3 - min3 + 1)) + min3;
+    if (n3 > remaining) n3 = remaining;
+    const n2 = remaining - n3;
     const nonBombValues = [
       ...Array(n3).fill(3),
       ...Array(n2).fill(2),
@@ -102,7 +115,7 @@ const GameGrid = ({
     );
     setBombsInCol(newBombsInCol);
     setScore(1);
-  }, [level, nTiles]);
+  }, [level, gridTiles]);
 
   // Reveal all tiles when game is over or won
   useEffect(() => {
@@ -181,7 +194,7 @@ const GameGrid = ({
             value={tile?.value}
             flipCard={() => !tile?.isFlipped && flipCard(row - 1, col - 1)}
             cardFlipped={tile?.isFlipped}
-            lastTile={nTiles}
+            lastTile={gridTiles}
           />
         );
       }

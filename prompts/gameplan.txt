@@ -31,3 +31,6 @@ Customization & Accessibility
 - Allow players to customize grid size and bomb count in a sandbox or practice mode.
 
 
+bugs:
+Level Alert score incrementation tiles still clickable and score adds. 
+
