@@ -3,6 +3,7 @@ import { shuffle } from "../utils/shuffle";
 import { MIN_TILE_SIZE } from "../constants/layout";
 import TileButton from "./TileButton";
 import HintTiles from "./HintTIles";
+import { cn } from "../utils/cn";
 
 type TtileData = {
   value: number;
@@ -15,6 +16,7 @@ type GameGridProps = {
   manualGridSize: boolean;
   bombFound: boolean;
   win: boolean;
+  gridLocked?: boolean;
   onLevelComplete: (score: number) => void;
   onBombFound: () => void;
   onScoreChange: (score: number) => void;
@@ -28,6 +30,7 @@ const GameGrid = ({
   manualGridSize,
   bombFound,
   win,
+  gridLocked = false,
   onLevelComplete,
   onBombFound,
   onScoreChange,
@@ -38,23 +41,22 @@ const GameGrid = ({
   if (!manualGridSize) {
     if (level >= 1 && level <= 5) {
       gridTiles = 16;
-      maxBombs = Math.floor(Math.random() * 2) + 3; // 3 or 4 bombs
+      maxBombs = 2;
     } else if (level >= 6 && level <= 10) {
       gridTiles = 25;
-      maxBombs = Math.floor(Math.random() * 2) + 4; // 4 or 5 bombs
-    } else if (gridTiles === 25) {
-      maxBombs = 4;
-    } else if (gridTiles === 36) {
-      maxBombs = Math.floor(Math.random() * 2) + 5;
+      maxBombs = Math.floor(Math.random() * 2) + 2; // 2 or 3 bombs
+    } else if (level >= 11) {
+      gridTiles = 36;
+      maxBombs = 3;
     }
   } else {
     // Manual mode: use nTiles and scale bombs accordingly
     if (gridTiles === 16) {
-      maxBombs = Math.floor(Math.random() * 2) + 3; // 3 or 4 bombs
+      maxBombs = 2;
     } else if (gridTiles === 25) {
-      maxBombs = Math.floor(Math.random() * 2) + 4; // 4 or 5 bombs
+      maxBombs = Math.floor(Math.random() * 2) + 2; // 2 or 3 bombs
     } else if (gridTiles === 36) {
-      maxBombs = Math.floor(Math.random() * 2) + 5;
+      maxBombs = 3;
     }
   }
   const SQRT_N_Tiles = Math.sqrt(gridTiles);
@@ -74,15 +76,15 @@ const GameGrid = ({
     const totalTiles = gridTiles;
     const bombs = Array(maxBombs).fill(0);
     const nonBombTiles = totalTiles - maxBombs;
-    // 1s always fill 50%
-    const n1 = Math.floor(nonBombTiles * 0.5);
-    // 2s and 3s share the other 50%, but 3s never exceed 25% and never drop below 10%
-    const max3 = Math.floor(nonBombTiles * 0.25);
+    // 1s always fill 60%
+    const n1 = Math.floor(nonBombTiles * 0.6);
+    // 3s never exceed 20% and never drop below 10%
     const min3 = Math.ceil(nonBombTiles * 0.1);
-    const remaining = nonBombTiles - n1;
+    const max3 = Math.floor(nonBombTiles * 0.2);
+    // 3s: random between min3 and max3
     let n3 = Math.floor(Math.random() * (max3 - min3 + 1)) + min3;
-    if (n3 > remaining) n3 = remaining;
-    const n2 = remaining - n3;
+    if (n3 > nonBombTiles - n1) n3 = nonBombTiles - n1; // can't exceed available tiles
+    const n2 = nonBombTiles - n1 - n3;
     const nonBombValues = [
       ...Array(n3).fill(3),
       ...Array(n2).fill(2),
@@ -141,7 +143,13 @@ const GameGrid = ({
 
   // Tile flip logic
   const flipCard = (rowIndex: number, colIndex: number) => {
-    if (tilesData[rowIndex][colIndex].isFlipped || bombFound || win) return;
+    if (
+      tilesData[rowIndex][colIndex].isFlipped ||
+      bombFound ||
+      win ||
+      gridLocked
+    )
+      return;
     const tile = tilesData[rowIndex][colIndex];
     const isBomb = tile.value === 0;
     setTilesData((prevTilesData) =>
@@ -208,24 +216,28 @@ const GameGrid = ({
             flipCard={() => !tile?.isFlipped && flipCard(row - 1, col - 1)}
             cardFlipped={tile?.isFlipped}
             lastTile={gridTiles}
+            disabled={gridLocked}
           />
         );
       }
     }
   }
+
+  console.log(SQRT_N_Tiles);
   return (
     <div
-      className="grid aspect-square font-comfortaa"
+      className={cn(
+        "grid scale-75 sm:scale-100  aspect-square font-comfortaa w-full max-w-[430px] max-h-[70vw] sm:max-h-[430px] mx-auto",
+        {
+          "-translate-x-4 sm:-translate-x-0": SQRT_N_Tiles === 4,
+          "-translate-x-10 sm:-translate-x-11": SQRT_N_Tiles === 5,
+          "-translate-x-[4.5rem] sm:-translate-x-24": SQRT_N_Tiles === 6,
+        }
+      )}
       style={{
         gridTemplateColumns: `repeat(${SQRT_N_Tiles + 1}, 1fr)`,
         gridTemplateRows: `repeat(${SQRT_N_Tiles + 1}, 1fr)`,
         gap: `${GAP}px`,
-        width: frameSize,
-        height: frameSize,
-        maxWidth: "100vw",
-        maxHeight: "70vh",
-        minWidth: 0,
-        minHeight: 0,
       }}
     >
       {gridCells}

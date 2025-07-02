@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import LevelSlider from "./components/LevelSlider";
+// import LevelSlider from "./components/LevelSlider";
 import GameGrid from "./components/GameGrid";
 import InfoDock from "./components/InfoDock";
 import LevelUpAlert from "./components/LevelUpAlert";
@@ -17,6 +17,7 @@ function App() {
   const levelUpTimeout = useRef<number | null>(null);
   const [nTiles, setNTiles] = useState<number>(16); // For LevelSlider only
   const [manualGridSize, setManualGridSize] = useState<boolean>(false);
+  const [gridLocked, setGridLocked] = useState(false);
 
   // LevelSlider handler
   const handleGridSizeChange = (size: number) => {
@@ -28,16 +29,19 @@ function App() {
     setRestartKey((k) => k + 1);
     setNTiles(size);
     setManualGridSize(true);
+    setGridLocked(false);
   };
 
   // Level up handler
   const handleLevelComplete = (levelScore: number) => {
     setShowLevelUp(true);
     setCumulativeScore((prev) => prev + levelScore);
+    setGridLocked(true);
     levelUpTimeout.current = setTimeout(() => {
       setShowLevelUp(false);
       setLevel((prev) => prev + 1);
       setScore(1);
+      setGridLocked(false);
     }, 3000);
   };
 
@@ -45,6 +49,7 @@ function App() {
   const handleBombFound = () => {
     setBombFound(true);
     setWin(false);
+    setGridLocked(true);
   };
 
   // Score change handler
@@ -61,6 +66,7 @@ function App() {
     setBombFound(false);
     setWin(false);
     setManualGridSize(false);
+    setGridLocked(false);
   };
 
   // Clean up timeout on unmount
@@ -71,12 +77,11 @@ function App() {
   }, []);
 
   return (
-    <div className="app min-h-screen min-w-screen flex flex-col items-center justify-center font-comfortaa bg-gradient-to-br from-primaryblue via-lightblue to-lavender">
+    <div className="app min-h-screen w-full flex flex-col items-center justify-center font-comfortaa bg-gradient-to-br from-primaryblue via-lightblue to-lavender relative overflow-x-hidden">
       {/* Level Up Alert */}
       <LevelUpAlert showLevelUp={showLevelUp} level={level} />
 
       {/* Overlay for Game Over or Win */}
-
       <GameOverModal
         bombFound={bombFound}
         win={win}
@@ -84,9 +89,11 @@ function App() {
         cumulativeScore={cumulativeScore}
         handleRestart={handleRestart}
       />
-      {/* Main Game Grid, centered and a bit towards the top */}
-      <div className="absolute top-1/2 left-1/2  -translate-x-1/2 -translate-y-1/2  w-[600px] h-[600px] min-h-[100vh] bg-white/10  blur-xl " />
-      <div className="absolute top-1/2 left-1/2  -translate-x-[69%] -translate-y-[60%] min-h-[60vh]">
+      {/* Main Game Grid, centered and responsive */}
+      <div className="absolute inset-0 flex items-center justify-center -z-10">
+        <div className="w-full h-full max-w-[430px] max-h-[90vh] bg-white/10 blur-xl rounded-3xl" />
+      </div>
+      <div className="flex flex-col items-center justify-center w-full max-w-[430px] px-2 pt-8 pb-32 mx-auto">
         <GameGrid
           key={restartKey + "-" + level + "-" + nTiles}
           level={level}
@@ -94,17 +101,20 @@ function App() {
           manualGridSize={manualGridSize}
           bombFound={bombFound}
           win={win}
+          gridLocked={gridLocked}
           onLevelComplete={handleLevelComplete}
           onBombFound={handleBombFound}
           onScoreChange={handleScoreChange}
         />
       </div>
       {/* Docked header/navbar at the bottom */}
-      <InfoDock level={level} score={score} cumulativeScore={cumulativeScore} />
-      {/* Development: Grid Sizer in bottom right */}
-      <div className="fixed bottom-4 right-4 z-50 bg-lavender rounded-xl shadow-lg p-2 border-2 border-primaryblue animate-navbar-fade">
-        <LevelSlider gridSize={nTiles} setGridSize={handleGridSizeChange} />
-      </div>
+      <InfoDock
+        level={level}
+        score={score}
+        cumulativeScore={cumulativeScore}
+        gridSize={nTiles}
+        setGridSize={handleGridSizeChange}
+      />
     </div>
   );
 }

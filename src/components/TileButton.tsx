@@ -7,6 +7,7 @@ type TTileButton = {
   cardFlipped: boolean | undefined;
   value: number | null;
   index: number;
+  disabled?: boolean;
   // tilePx?: number;
 };
 
@@ -18,12 +19,13 @@ export default function TileButton({
   value,
   flipCard,
   cardFlipped,
+  disabled = false,
 }: // borderTiles,
 // tilePx = 60,
 TTileButton) {
   return (
     <button
-      disabled={cardFlipped}
+      disabled={cardFlipped || disabled}
       className={`
         w-full h-full
         flex items-center justify-center
@@ -41,7 +43,7 @@ TTileButton) {
               : "bg-green-200 border-green-400 text-green-900 scale-95"
             : "bg-primaryblue border-primaryblue text-white hover:bg-lightblue hover:scale-105"
         }
-        ${cardFlipped ? "" : "cursor-pointer"}
+        ${cardFlipped || disabled ? "" : "cursor-pointer"}
         animate-tile-float
       `}
       style={{
