@@ -4,6 +4,7 @@ import GameGrid from "./components/GameGrid";
 import InfoDock from "./components/InfoDock";
 import LevelUpAlert from "./components/LevelUpAlert";
 import GameOverModal from "./components/GameOverModal";
+import InstructionsModal from "./components/InstructionsModal";
 
 function App() {
   /* VARIABLES */
@@ -18,6 +19,7 @@ function App() {
   const [nTiles, setNTiles] = useState<number>(16); // For LevelSlider only
   const [manualGridSize, setManualGridSize] = useState<boolean>(false);
   const [gridLocked, setGridLocked] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
 
   // LevelSlider handler
   const handleGridSizeChange = (size: number) => {
@@ -76,8 +78,17 @@ function App() {
     };
   }, []);
 
+  // Show instructions on first load/new session
+  useEffect(() => {
+    const seen = localStorage.getItem("tapboom_seen_instructions");
+    if (!seen) {
+      setShowInstructions(true);
+      localStorage.setItem("tapboom_seen_instructions", "yes");
+    }
+  }, []);
+
   return (
-    <div className="app min-h-screen w-full flex flex-col items-center justify-center font-comfortaa bg-gradient-to-br from-primaryblue via-lightblue to-lavender relative overflow-x-hidden">
+    <div className="app min-h-screen w-full flex flex-col items-center justify-center font-comfortaa bg-primaryblue/40 relative overflow-x-hidden">
       {/* Level Up Alert */}
       <LevelUpAlert showLevelUp={showLevelUp} level={level} />
 
@@ -114,7 +125,11 @@ function App() {
         cumulativeScore={cumulativeScore}
         gridSize={nTiles}
         setGridSize={handleGridSizeChange}
+        onShowInstructions={() => setShowInstructions(true)}
       />
+      {showInstructions && (
+        <InstructionsModal onClose={() => setShowInstructions(false)} />
+      )}
     </div>
   );
 }

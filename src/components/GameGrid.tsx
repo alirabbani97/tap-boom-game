@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { shuffle } from "../utils/shuffle";
-import { MIN_TILE_SIZE } from "../constants/layout";
+// import { MIN_TILE_SIZE } from "../constants/layout";
 import TileButton from "./TileButton";
 import HintTiles from "./HintTIles";
 import { cn } from "../utils/cn";
@@ -60,7 +60,7 @@ const GameGrid = ({
     }
   }
   const SQRT_N_Tiles = Math.sqrt(gridTiles);
-  const frameSize = MIN_TILE_SIZE * (SQRT_N_Tiles + 1) + GAP * SQRT_N_Tiles;
+  // const frameSize = MIN_TILE_SIZE * (SQRT_N_Tiles + 1) + GAP * SQRT_N_Tiles;
 
   // State
   const [tilesData, setTilesData] = useState<TtileData[][]>([]);

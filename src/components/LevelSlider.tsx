@@ -1,4 +1,4 @@
-import React from "react";
+// import React from "react";
 
 export default function LevelSlider({
   gridSize,
@@ -12,7 +12,7 @@ export default function LevelSlider({
   const sliderValue = sliderMarks.indexOf(gridSize);
 
   return (
-    <div className="flex flex-col items-center w-full min-w-0">
+    <div className="flex flex-col items-center w-full min-w-0 max-w-44">
       <label className="text-[0.7rem] font-bold text-white mb-1">
         Grid Size
       </label>
