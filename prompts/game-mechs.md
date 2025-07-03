@@ -8,12 +8,12 @@ Leveling System
 
 Grid and Bomb Scaling by Level
 | Level Range | Grid Size | Maximum Bombs Allowed |
-| Levels 1–5 | 4×4 (16) | 2 bombs |
-| Levels 6–10 | 5×5 (25) | 3 bombs |
-| Levels 11+ | 6×6 (36) |  3-4 bombs (randomized) |
+| Levels 1–10 | 5×5 (25) | 4-6 bombs (progressively) |
+| Levels 11+ | 6×6 (36) |  5-8 bombs (progressively) |
 
 - Bombs are randomly placed at the start of each level.
 - The number of bombs is capped based on the current level range.
+- chances of more bombs increases as the level progresses
 - Grid size increases at key level thresholds to introduce complexity.
 
 Tile Value Distribution

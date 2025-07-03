@@ -8,7 +8,7 @@ export default function LevelSlider({
   setGridSize: (size: number) => void;
 }) {
   // Map slider positions to grid sizes
-  const sliderMarks = [16, 25, 36];
+  const sliderMarks = [25, 36];
   const sliderValue = sliderMarks.indexOf(gridSize);
 
   return (
@@ -20,14 +20,13 @@ export default function LevelSlider({
         <input
           type="range"
           min={0}
-          max={2}
+          max={1}
           step={1}
           value={sliderValue}
           onChange={(e) => setGridSize(sliderMarks[parseInt(e.target.value)])}
           className="w-full accent-yellow-400 h-2 rounded-lg appearance-none bg-white/30 focus:outline-none focus:ring-2 focus:ring-yellow-300"
         />
         <div className="flex w-full justify-between mt-1 text-[0.65rem] text-white">
-          <span>4x4</span>
           <span>5x5</span>
           <span>6x6</span>
         </div>
