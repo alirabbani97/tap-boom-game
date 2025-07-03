@@ -1,10 +1,14 @@
+import { FaFlag } from "react-icons/fa";
+
 type TTileButton = {
   // lastCol: number[];
   // lastRow: number[];
   borderTiles?: number[];
   lastTile: number;
   flipCard: () => void;
+  flagCard: () => void;
   cardFlipped: boolean | undefined;
+  cardFlagged: boolean | undefined;
   value: number | null;
   index: number;
   disabled?: boolean;
@@ -18,6 +22,7 @@ export default function TileButton({
   // index,
   value,
   flipCard,
+  flagCard,
   cardFlipped,
   disabled = false,
 }: // borderTiles,
