@@ -37,11 +37,10 @@ const GameGrid = ({
 }: GameGridProps) => {
   // Dynamic grid and bomb scaling by level
   let gridTiles = nTiles; // default to prop
-  let maxBombs = 4;
+  let maxBombs = 4; // Start at 4 for level 1
   if (!manualGridSize) {
     if (level >= 1 && level <= 10) {
       gridTiles = 25;
-      // Progressively increase bomb count from 4 to 6 as level increases
       // Levels 1-4: 4 bombs, 5-7: 5 bombs, 8-10: 6 bombs
       if (level <= 4) {
         maxBombs = 4;
@@ -52,7 +51,6 @@ const GameGrid = ({
       }
     } else if (level >= 11) {
       gridTiles = 36;
-      // Progressively increase bomb count from 5 to 8 as level increases
       // Levels 11-13: 5 bombs, 14-16: 6 bombs, 17-19: 7 bombs, 20+: 8 bombs
       if (level <= 13) {
         maxBombs = 5;
@@ -243,8 +241,10 @@ const GameGrid = ({
         "grid scale-[0.55]    md:scale-100  aspect-square font-comfortaa w-full max-w-[430px] max-h-[70vw] sm:max-h-[430px] mx-auto",
         {
           // "-translate-x-4 md:-translate-x-0": SQRT_N_Tiles === 4,
-          "-translate-x-10 -translate-y-10 md:-translate-x-11": SQRT_N_Tiles === 5,
-          "-translate-x-[4rem] -translate-y-10 md:-translate-x-24": SQRT_N_Tiles === 6,
+          "-translate-x-10 -translate-y-10 md:-translate-x-11":
+            SQRT_N_Tiles === 5,
+          "-translate-x-[4rem] -translate-y-10 md:-translate-x-24":
+            SQRT_N_Tiles === 6,
         }
       )}
       style={{
