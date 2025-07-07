@@ -293,7 +293,6 @@ const GameGrid = ({
         gridCells.push(
           <TileButton
             key={`${row - 1}-${col - 1}`}
-            index={row - 1 + col - 1 + 1}
             value={tile?.value}
             flipCard={() => !tile?.isFlipped && flipCard(row - 1, col - 1)}
             cardFlipped={tile?.isFlipped}
