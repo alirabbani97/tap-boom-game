@@ -4,6 +4,7 @@ import { shuffle } from "../utils/shuffle";
 import TileButton from "./TileButton";
 import HintTiles from "./HintTIles";
 import { cn } from "../utils/cn";
+import React from "react";
 
 type TtileData = {
   value: number;
@@ -20,6 +21,10 @@ type GameGridProps = {
   onLevelComplete: (score: number) => void;
   onBombFound: () => void;
   onScoreChange: (score: number) => void;
+  gameMode?: "arcade" | "timed" | null;
+  doubleTap?: boolean;
+  triggerHint?: number;
+  onProgressUpdate?: (remaining: number, total: number) => void;
 };
 
 const GAP = 8; // px
@@ -34,6 +39,8 @@ const GameGrid = ({
   onLevelComplete,
   onBombFound,
   onScoreChange,
+  triggerHint,
+  onProgressUpdate,
 }: GameGridProps) => {
   // Dynamic grid and bomb scaling by level
   let gridTiles = nTiles; // default to prop
@@ -80,6 +87,8 @@ const GameGrid = ({
   const [bombsInRow, setBombsInRow] = useState<number[]>([]);
   const [bombsInCol, setBombsInCol] = useState<number[]>([]);
   const [score, setScore] = useState<number>(1);
+  // Bomb spark trigger: increment when bombFound becomes true
+  const [bombSparkTrigger, setBombSparkTrigger] = useState(0);
 
   // Board generation
   useEffect(() => {
@@ -151,6 +160,68 @@ const GameGrid = ({
       );
     }
   }, [bombFound, win]);
+
+  // HINT: Reveal a random safe, unrevealed tile when triggerHint changes
+  useEffect(() => {
+    if (!triggerHint) return; // skip on mount
+    if (bombFound || win) return;
+    // Find all safe, unrevealed tiles
+    const safeTiles: { row: number; col: number }[] = [];
+    tilesData.forEach((rowArr, rowIdx) => {
+      rowArr.forEach((tile, colIdx) => {
+        if (tile.value !== 0 && !tile.isFlipped) {
+          safeTiles.push({ row: rowIdx, col: colIdx });
+        }
+      });
+    });
+    if (safeTiles.length === 0) return;
+    // Pick a random safe tile
+    const pick = safeTiles[Math.floor(Math.random() * safeTiles.length)];
+    // Flip it
+    setTilesData((prev) =>
+      prev.map((row, i) =>
+        row.map((tile, j) =>
+          i === pick.row && j === pick.col ? { ...tile, isFlipped: true } : tile
+        )
+      )
+    );
+    // Update score if needed
+    const tileVal = tilesData[pick.row][pick.col]?.value;
+    if (tileVal && tileVal > 1) {
+      setScore((prev) => {
+        const newScore = prev * tileVal;
+        onScoreChange(newScore);
+        return newScore;
+      });
+    }
+  }, [triggerHint]);
+
+  // Progress update: count high-value tiles remaining
+  const lastProgress = React.useRef<{ remaining: number; total: number }>({
+    remaining: -1,
+    total: -1,
+  });
+  useEffect(() => {
+    if (!onProgressUpdate) return;
+    const allHighValue = tilesData.flat().filter((t) => t.value > 1);
+    const revealedHighValue = tilesData
+      .flat()
+      .filter((t) => t.value > 1 && t.isFlipped);
+    const remaining = allHighValue.length - revealedHighValue.length;
+    const total = allHighValue.length;
+    if (
+      lastProgress.current.remaining !== remaining ||
+      lastProgress.current.total !== total
+    ) {
+      lastProgress.current = { remaining, total };
+      onProgressUpdate(remaining, total);
+    }
+  }, [tilesData, onProgressUpdate]);
+
+  // Bomb spark trigger: increment when bombFound becomes true
+  useEffect(() => {
+    if (bombFound) setBombSparkTrigger((t) => t + 1);
+  }, [bombFound]);
 
   // Tile flip logic
   const flipCard = (rowIndex: number, colIndex: number) => {
@@ -228,6 +299,7 @@ const GameGrid = ({
             cardFlipped={tile?.isFlipped}
             lastTile={gridTiles}
             disabled={gridLocked}
+            bombSparkTrigger={bombSparkTrigger}
           />
         );
       }

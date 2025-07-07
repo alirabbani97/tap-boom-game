@@ -26,11 +26,13 @@ const Tile = ({
 
 export default function InstructionsModal({
   onClose,
+  isOverlaid = true,
 }: {
   onClose: () => void;
+  isOverlaid?: boolean;
 }) {
   return (
-    <ScreenOverlay show={true}>
+    <ScreenOverlay show={isOverlaid}>
       <div className="fixed inset-0 flex items-center justify-center z-50">
         <div className="relative bg-blue-900 border-4 border-primaryblue rounded-3xl shadow-2xl max-w-[95vw] w-full sm:w-[600px] p-6 sm:p-8 animate-slide-up-fade">
           <button

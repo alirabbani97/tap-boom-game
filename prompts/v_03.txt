@@ -1,0 +1,15 @@
+
+Gameplay Enhancements
+- Add a “second chance” mechanic, such as a one-time shield or undo option, to recover from a mistaken bomb click.
+User Interface & Feedback
+
+
+
+Progression & Replayability
+- Add daily or weekly puzzle challenges with leaderboards.
+- Include achievements or badges for milestones like “First Win,” “Perfect Game,” or “Fastest Clear.”
+
+Customization & Accessibility
+- Offer themes or skins for tiles and the board (e.g., classic, futuristic, minimalist).
+- Include accessibility options such as colorblind-friendly palettes, adjustable font sizes, and keyboard navigation.
+- Allow players to customize grid size and bomb count in a sandbox or practice mode.

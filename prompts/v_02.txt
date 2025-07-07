@@ -1,0 +1,23 @@
+
+now implement a start menu screen with the two options, Arcade and Timed  and a checkbox to toggle double tap/click
+
+
+GENERAL Modification:
+
+- Add a flagging system to mark suspected bombs, allowing players to track their deductions, right click to flag/flag, the flagged tile cannot be clicked untill unflagged.
+- Implement a double click mechanism, one click
+- Introduce a summary screen between levels showing score, time taken, and accuracy.
+- Track the highest level reached in a session for replayability and competitive scoring.
+
+For ARCADE:
+-The gameplay remains the same
+
+For TIMER:
+- Implement a timer or move counter to reward faster or more efficient playthroughs with bonus points, give 15 second time bonus on each completion.
+
+
+
+
+
+
+
